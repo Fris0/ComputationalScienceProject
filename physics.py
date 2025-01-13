@@ -3,7 +3,7 @@
 
 
 class Rocket():
-    def __init__(self):
+    def __init__(self): #
         pass
 
 class PhysicsFormulas():
