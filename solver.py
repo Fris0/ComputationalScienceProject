@@ -2,7 +2,7 @@
 # Responsible person: Mark, Riemer
 
 class Solver():
-    def __init__(self):
+    def __init__(self): # General settings for the solver.
         pass
 
     def solve_singlestep():

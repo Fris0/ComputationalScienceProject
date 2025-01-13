@@ -2,4 +2,5 @@
 # Responsible person: Rik
 
 class Verifier():
-    def __init__():
+    def __init__(): # Here general settings for the verifier
+        pass
