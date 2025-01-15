@@ -10,13 +10,13 @@ class Rocket():
                  T=66000.0,
                  Mp=13600.0,
                  t_b=100.0):
-        self.g   = g       #gravitational acceleration (m/s^2)
+        self.g = g       #gravitational acceleration (m/s^2)
         self.rho = rho     #air density (kg/m^3)
-        self.Cd  = Cd      #drag coefficient
-        self.A   = A       #cross-sectional area (m^2)
-        self.I_sp= I_sp    #specific impulse (s)
-        self.T   = T       #thrust (N)
-        self.Mp  = Mp      #propellant mass (kg)
+        self.Cd = Cd      #drag coefficient
+        self.A = A       #cross-sectional area (m^2)
+        self.I_sp = I_sp    #specific impulse (s)
+        self.T = T       #thrust (N)
+        self.Mp = Mp      #propellant mass (kg)
         self.t_b = t_b     #burn time (s)
 
 class PhysicsFormulas():
@@ -42,7 +42,7 @@ class PhysicsFormulas():
 
         #Forces
         F_weight = -m * g
-        F_drag   = -0.5 * rho * Cd * A * v * abs(v)
+        F_drag = -0.5 * rho * Cd * A * v * abs(v)
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
