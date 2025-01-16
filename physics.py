@@ -27,8 +27,8 @@ class Rocket():
         
         Resulting ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
-        v' = Fnet / m (Acceleration changes at the rate of net force divided by current mass)
-        m' = -T/(I_sp * g) or 0 (mass decreases at a constant rate while the engine is burning, and remains constant after burnout)
+        v' = Fnet / m (Velocity changes at the rate of net force divided by current mass equivalent to acceleration)
+        m' = -T/(I_sp * g) or 0 (mass decreases at a constant rate while the engine is burning, then remains unchanged after burnout)
         """
 
         #Unpack state
