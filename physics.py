@@ -16,44 +16,46 @@ class Rocket():
         self.t_b = t_b  # burn time (s)
 
         # Initial rate of change.
-        dm_dt = None  # Mass rate of change
-        dy_dt = None  # Altitude changes at rate = velocity
-        dv_dt = None  # Velocity changes at rate = acceleration
+        # dm_dt = None  # Mass rate of change
+        # dy_dt = None  # Altitude changes at rate = velocity
+        # dv_dt = None  # Velocity changes at rate = acceleration
 
     def rocket_1d_dynamics(self, t, state):
         """
         Computes the time derivatives (dy/dt, dv/dt, dm/dt)
         for a 1D rocket under constant gravity and drag.
-        
+
         Resulting ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
-        v' = Fnet / m (Velocity changes at the rate of net force divided by current mass equivalent to acceleration)
-        m' = -T/(I_sp * g) or 0 (mass decreases at a constant rate while the engine is burning, then remains unchanged after burnout)
+        v' = Fnet / m (Velocity changes at the rate of net force divided by
+            current mass equivalent to acceleration)
+        m' = -T/(I_sp * g) or 0 (mass decreases at a constant rate while the
+            engine is burning, then remains unchanged after burnout)
         """
 
-        #Unpack state
+        # Unpack state
         y, v, m = self.s
 
-        #Decide if rocket is still burning
+        # Decide if rocket is still burning
         if t < self.t_b:
-            #Thrust is constant T
+            # Thrust is constant T
             thrust = self.T
-            #Constant mass flow rate
+            # Constant mass flow rate
             mdot = self.T / (self.I_sp * self.g)
         else:
-            #No more thrust
+            # No more thrust
             thrust = 0.0
             mdot = 0.0
 
-        #Forces
+        # Forces
         F_weight = -m * self.g
         F_drag = -0.5 * self.rho * self.Cd * self.A * v * abs(v)
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
-        #Acceleration
+        # Acceleration
         a = F_net / m
 
-        self.dm_dt = -mdot #Mass rate of change
-        self.dy_dt = v     #Altitude changes at rate = velocity
-        self.dv_dt = a     #Velocity changes at rate = acceleration
+        self.dm_dt = -mdot  # Mass rate of change
+        self.dy_dt = v      # Altitude changes at rate = velocity
+        self.dv_dt = a      # Velocity changes at rate = acceleration
