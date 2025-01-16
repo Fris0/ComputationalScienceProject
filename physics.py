@@ -15,41 +15,66 @@ class Rocket():
         self.Mp = Mp  # propellant mass (kg)
         self.t_b = t_b  # burn time (s)
 
+<<<<<<< HEAD
+=======
+        # Initial rate of change.
+        # dm_dt = None  # Mass rate of change
+        # dy_dt = None  # Altitude changes at rate = velocity
+        # dv_dt = None  # Velocity changes at rate = acceleration
+>>>>>>> 958dba71fabc2044269c7e72fc11106dea082aa2
 
     def rocket_1d_dynamics(self, t, state):
         """
         Computes the time derivatives (dy/dt, dv/dt, dm/dt)
         for a 1D rocket under constant gravity and drag.
+<<<<<<< HEAD
         
         State = (y, v, m)
         
+=======
+
+>>>>>>> 958dba71fabc2044269c7e72fc11106dea082aa2
         Resulting ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
-        v' = Fnet / m (Velocity changes at the rate of net force divided by current mass equivalent to acceleration)
-        m' = -T/(I_sp * g) or 0 (mass decreases at a constant rate while the engine is burning, then remains unchanged after burnout)
+        v' = Fnet / m (Velocity changes at the rate of net force divided by
+            current mass equivalent to acceleration)
+        m' = -T/(I_sp * g) or 0 (mass decreases at a constant rate while the
+            engine is burning, then remains unchanged after burnout)
         """
 
+<<<<<<< HEAD
         #Unpack state
         y,v,m = state
+=======
+        # Unpack state
+        y, v, m = self.s
+>>>>>>> 958dba71fabc2044269c7e72fc11106dea082aa2
 
-        #Decide if rocket is still burning
+        # Decide if rocket is still burning
         if t < self.t_b:
-            #Thrust is constant T
+            # Thrust is constant T
             thrust = self.T
-            #Constant mass flow rate
+            # Constant mass flow rate
             mdot = self.T / (self.I_sp * self.g)
         else:
-            #No more thrust
+            # No more thrust
             thrust = 0.0
             mdot = 0.0
 
-        #Forces
+        # Forces
         F_weight = -m * self.g
         F_drag = -0.5 * self.rho * self.Cd * self.A * v * abs(v)
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
-        #Acceleration
+        # Acceleration
         a = F_net / m
+<<<<<<< HEAD
         
         return np.array([v, a, -mdot])
+=======
+
+        self.dm_dt = -mdot  # Mass rate of change
+        self.dy_dt = v      # Altitude changes at rate = velocity
+        self.dv_dt = a      # Velocity changes at rate = acceleration
+>>>>>>> 958dba71fabc2044269c7e72fc11106dea082aa2
