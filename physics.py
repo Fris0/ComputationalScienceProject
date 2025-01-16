@@ -1,11 +1,11 @@
 # Here the general physics.
 # Responsible people: Hans, George
 class Rocket():
-    def __init__(self, t, y, v, m, g=9.81, rho=1.225, Cd=0.5, A=0.1,
+    def __init__(self, g=9.81, rho=1.225, Cd=0.5, A=0.1,
                  I_sp=440.0, T=66000.0, Mp=13600.0, t_b=100.0):
 
-        self.t = t  # starting time
-        self.s = (y, v, m)  # starting state
+#         self.t = t  # starting time
+#         self.s = (y, v, m)  # starting state
         self.g = g  # gravitational acceleration (m/s^2)
         self.rho = rho  # air density (kg/m^3)
         self.Cd = Cd  # drag coefficient
@@ -15,15 +15,13 @@ class Rocket():
         self.Mp = Mp  # propellant mass (kg)
         self.t_b = t_b  # burn time (s)
 
-        # Initial rate of change.
-        dm_dt = None  # Mass rate of change
-        dy_dt = None  # Altitude changes at rate = velocity
-        dv_dt = None  # Velocity changes at rate = acceleration
 
     def rocket_1d_dynamics(self, t, state):
         """
         Computes the time derivatives (dy/dt, dv/dt, dm/dt)
         for a 1D rocket under constant gravity and drag.
+        
+        State = (y, v, m)
         
         Resulting ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
@@ -32,7 +30,7 @@ class Rocket():
         """
 
         #Unpack state
-        y, v, m = self.s
+        y,v,m = state
 
         #Decide if rocket is still burning
         if t < self.t_b:
@@ -53,7 +51,5 @@ class Rocket():
 
         #Acceleration
         a = F_net / m
-
-        self.dm_dt = -mdot #Mass rate of change
-        self.dy_dt = v     #Altitude changes at rate = velocity
-        self.dv_dt = a     #Velocity changes at rate = acceleration
+        
+        return np.array([v, a, -mdot])
