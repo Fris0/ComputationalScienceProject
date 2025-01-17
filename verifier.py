@@ -86,18 +86,14 @@ class Verifier():
         # Obtain the correct axis ticks.
         greens_arr.sort()
         blues_arr.sort()
-        print(len(greens_arr), len(blues_arr), len(reds_arr))
         blues_arr = [(x, xaxis_map[i]) for i, x in enumerate(blues_arr)]
         greens_arr = [(y, yaxis_map[i]) for i, y in enumerate(greens_arr)]
-        print(greens_arr)
-        print(blues_arr)
 
         # Obtain the bounds of the image
         upperleftpos = (min(blues_arr, key=lambda x: x[0])[0],
                         min(greens_arr, key=lambda x: x[0])[0])
         lowerrightpos = (max(blues_arr, key=lambda x: x[0])[0],
                          max(greens_arr, key=lambda x: x[0])[0])
-        print(upperleftpos, lowerrightpos)
 
         # Turn position of value in the image to a value in the plot
         crudedata = []
@@ -129,17 +125,7 @@ class Verifier():
                     (1-p_leftx)*blues_arr[xbetween+1][1]
                 ydata = p_lowery*greens_arr[ybetween][1] + \
                     (1-p_lowery)*greens_arr[ybetween+1][1]
-                if (xdata < 0):
-                    print(xdata, p_leftx, xinterval,
-                          point[0], blues_arr[xbetween][0])
-                if (ydata < 0):
-                    print(ydata, p_lowery, yinterval, point[1],
-                          greens_arr[ybetween][0])
                 crudedata.append((point[0], point[1], xdata, ydata))
-                # if (point[1] == 762):
-                #     print((point[0], point[1], xdata, ydata))
-                #     print(p_leftx, xinterval,
-                #           point[0], blues_arr[xbetween][1], blues_arr[xbetween+1][1])
 
         # Clean up datapoints; We only want one datapoint per y value.
         data = []
