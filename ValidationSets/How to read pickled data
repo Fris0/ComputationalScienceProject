@@ -1,0 +1,12 @@
+After unpickeling the date you will get a dictionairy. To access information from it write this:
+data[launch angle][payload weight][timestep name][attribute]
+
+Launch angle is an integer representing the launch angke in degrees. Options are 75, 80, 85, 90.
+Payload weight in an integer representing the payload weight in pounds. Options are 50, 60, 70, 80, 90, 100.
+timestep name is a self-explanatory string. Options are (in order of occuring): 'Nike Burnout', 'Apache Ignition', 'Apache Burnout', 'Apogee', 'Impact'.
+attribute is a string which refers to the attribute of the rocket you want of this specific launch angle, payload weight and time step. Options are
+	- 't' for time in seconds since launch
+	- 's' for speed in feet per seconds
+	- 'a' for altitude in feet
+	- 'hr' for horizintal range in feet
+	- 'fpa' for flightpath angle in degrees
