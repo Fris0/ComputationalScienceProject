@@ -1,13 +1,16 @@
 # Here the numerical solver, probably using Runge-Kutta
 # Responsible person: Mark, Riemer
 
-# from physics import Rocket, PhysicsFormulas
+from physics import Rocket
 import numpy as np
 
-
 class Solver():
-    def __init__(self):  # General settings for the solver.
-        pass
+    def __init__(self, tolerance=1, tbegin=0, tend=20, min_its=10e4, max_its=10e7):  # General settings for the solver.
+        self.eps = tolerance
+        self.tbegin = tbegin
+        self.tend = tend
+        self.min_its = min_its
+        self.max_its = max_its
 
     def solve_singlestep(f, tn, un, h):
         """
@@ -52,3 +55,32 @@ class Solver():
             u[n+1] = Solver.solve_singlestep(f, n*h, u[n], h)
 
         return u
+
+    def solve_rocket(self, rocket):
+        """
+        Solves the system of equations for a specific rocket.
+        """
+        mass = 100000 + rocket.Mp
+        altitude = 0
+        velocity = 0
+        print(f"Intial conditions are: {mass, altitude, velocity}")
+        T = self.tend-self.tbegin
+        N = int(self.min_its)
+        args = np.array([altitude, velocity, mass])
+        sol1 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
+        sol2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+        mymax = np.max(np.abs(np.repeat(sol1, repeats=2, axis=0)[:-1] -sol2))
+        while (mymax >= self.eps and 2 * N < self.max_its):
+            print(f"Desired tolerance not reached, increasing number of \
+                  interpolation points to {N} and current maximum error is {mymax}")
+            N *= 2
+            sol1 = sol2
+            sol2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+        return sol2
+
+
+if __name__ == "__main__":
+    pass
+#     mysolver = Solver()
+#     currocket = Rocket()
+#     mysolver.solve_rocket(currocket)

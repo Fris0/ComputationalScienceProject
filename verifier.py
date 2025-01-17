@@ -11,6 +11,9 @@ import numpy as np
 import pandas as pd
 # Plots
 import matplotlib.pyplot as plt
+# self-made libraries
+from solver import Solver
+from physics import Rocket
 
 
 class Verifier():
@@ -20,6 +23,7 @@ class Verifier():
     def PlotData(modeldata, verificationdata, xlabel="x",
                  ylabel="y", titel="Temp", savefig=False, savepos=""):
         """
+        Function that plots the models data versus the data of the actual solve.
         Input:
             - modeldata, a 2D numpy array of shape (n,2), with n describing the
                         length and furthermore containing an x and y to plot
@@ -42,6 +46,7 @@ class Verifier():
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(titel)
+        plt.legend()
         if (savefig):
             assert savepos != "", "Please insert a valid string to save to."
             plt.imsave(fname=savepos)
@@ -50,6 +55,7 @@ class Verifier():
     def DataCreator(sourceimg, outputcsv, xaxis_map, yaxis_map,
                     xlabel="x", ylabel="y"):
         """
+        Function that reads the data of a plot and then turns it into a csv.
         Input:
             - sourceimg, a string describing the img to
                 turn into a csv of the data;
@@ -58,12 +64,11 @@ class Verifier():
             - xaxis_map, a dict containing which number
                 corresponds to which datapoint on the x axis;
             - yaxis_map, a dict containing which number corresponds
-                to which datapoint on the y axis;
+                to which datapoint on the y axis.
         Output:
-            - None
+            - None.
         Side effects:
-            - Writes the data of a plot into a csv
-        Function that reads the data of a plot and then turns it into a csv.
+            - Writes the data of a plot into a csv.
         """
         img = cv.imread(sourceimg)  # Need to check if exists
         assert img is not None, \
@@ -143,18 +148,22 @@ class Verifier():
         mydataframe[ylabel] = data[1]
         mydataframe.to_csv(outputcsv)
 
-    def ReadValidationData():
+    def Numerical_Validator():
         pass
 
 
 if __name__ == "__main__":
-    pass
-    # verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
-    #                     sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
-    # print(np.shape(verificationdata))
-    # verificationdata = (verificationdata.T)[1:]
+    mysolver = Solver()
+    currocket = Rocket()
+    modeldata = mysolver.solve_rocket(currocket).T
+    modeldata = [modeldata[1], modeldata[0]]
+    print(np.shape(modeldata))
+    verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
+                        sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
+    verificationdata = (verificationdata.T)[1:]
+    print(np.shape(verificationdata))
     # print(verificationdata)
-    # Verifier.PlotData(verificationdata, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+    Verifier.PlotData(modeldata, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
 
 
     # Verifier.DataCreator("ValidationSets/NASA data/Flight path data.png",
