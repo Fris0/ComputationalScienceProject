@@ -60,6 +60,13 @@ class Solver():
         """
         Solves the system of equations for a specific rocket.
 
+        Input:
+            - rocket, A rocket class object, contains the rocket we want to launch
+        Output:
+            - sol2, a (N + 1, 3) array containing the [altitude, velocity, mass]
+              at various timesteps.
+        Side effects:
+            - None
         """
         mass = rocket.Mr + rocket.Mp
         altitude = 0
