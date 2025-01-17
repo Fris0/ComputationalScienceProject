@@ -59,8 +59,9 @@ class Solver():
     def solve_rocket(self, rocket):
         """
         Solves the system of equations for a specific rocket.
+
         """
-        mass = 100000 + rocket.Mp
+        mass = rocket.Mr + rocket.Mp
         altitude = 0
         velocity = 0
         print(f"Intial conditions are: {mass, altitude, velocity}")

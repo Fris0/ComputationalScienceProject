@@ -4,16 +4,17 @@ import numpy as np
 
 class Rocket():
     def __init__(self, g=9.81, rho=1.225, Cd=0.5, A=0.1,
-                 I_sp=440.0, T=66000.0, Mp=13600.0, t_b=100.0):
+                 I_sp=440.0, T=66000.0, M = 20000, Mp=13600.0, t_b=100.0):
 
-        self.g = g  # gravitational acceleration (m/s^2)
-        self.rho = rho  # air density (kg/m^3)
-        self.Cd = Cd  # drag coefficient
-        self.A = A  # cross-sectional area (m^2)
-        self.I_sp = I_sp  # specific impulse (s)
-        self.T = T  # thrust (N)
-        self.Mp = Mp  # propellant mass (kg)
-        self.t_b = t_b  # burn time (s)
+        self.g = g              # gravitational acceleration (m/s^2)
+        self.rho = rho          # air density (kg/m^3)
+        self.Cd = Cd            # drag coefficient
+        self.A = A              # cross-sectional area (m^2)
+        self.I_sp = I_sp        # specific impulse (s)
+        self.T = T              # thrust (N)
+        self.Mp = Mp            # propellant mass (kg)
+        self.Mr = M             # rocket mass (kg)
+        self.t_b = t_b          # burn time (s)
 
 
     def rocket_1d_dynamics(self, t, state):
@@ -43,6 +44,7 @@ class Rocket():
             # No more thrust
             thrust = 0.0
             mdot = 0.0
+
 
         # Forces
         F_weight = -m * self.g

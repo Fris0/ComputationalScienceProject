@@ -153,8 +153,22 @@ class Verifier():
 
 
 if __name__ == "__main__":
-    mysolver = Solver()
     currocket = Rocket()
+    currocket.Mp = 755.0
+    currocket.t_b = 3.5
+    currocket.Mr = 0
+    with open("ValidationSets/NASA data/rocket_mass.txt") as file:
+        for line in file:
+            currocket.Mr += float(line)
+    currocket.T = 22820
+    currocket.Cd = 0.5 # See page 10.
+    # currocket.A =
+    # currocket.I_sp =
+
+    mysolver = Solver()
+    mysolver.tbegin = 0
+    mysolver.tend = 5
+
     modeldata = mysolver.solve_rocket(currocket).T
     modeldata = [modeldata[1], modeldata[0]]
     print(np.shape(modeldata))
