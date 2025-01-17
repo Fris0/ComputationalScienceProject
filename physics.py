@@ -1,5 +1,7 @@
 # Here the general physics.
 # Responsible people: Hans, George
+import numpy as np
+
 class Rocket():
     def __init__(self, g=9.81, rho=1.225, Cd=0.5, A=0.1,
                  I_sp=440.0, T=66000.0, Mp=13600.0, t_b=100.0):
@@ -18,7 +20,7 @@ class Rocket():
         """
         Computes the time derivatives (dy/dt, dv/dt, dm/dt)
         for a 1D rocket under constant gravity and drag.
-        
+
 
         Resulting ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
@@ -50,6 +52,6 @@ class Rocket():
 
         # Acceleration
         a = F_net / m
-        
+
         return np.array([v, a, -mdot])
 

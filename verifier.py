@@ -9,8 +9,8 @@ import cv2 as cv
 import numpy as np
 # IO
 import pandas as pd
-# from os import listdir, mkdir
-# from os.path import isfile, join, exists
+# Plots
+import matplotlib.pyplot as plt
 
 
 class Verifier():
@@ -18,7 +18,7 @@ class Verifier():
         pass
 
     def PlotData(modeldata, verificationdata, xlabel="x",
-                 ylabel="y", titel="Temp", savefig=False):
+                 ylabel="y", titel="Temp", savefig=False, savepos=""):
         """
         Input:
             - modeldata, a 2D numpy array of shape (n,2), with n describing the
@@ -36,7 +36,16 @@ class Verifier():
         Side effects:
             - If savefig is True writes a figure to the disc.
         """
-        pass
+
+        plt.plot(modeldata[0], modeldata[1], label="Model data")
+        plt.plot(verificationdata[0], verificationdata[1], label="Verification data")
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.title(titel)
+        if (savefig):
+            assert savepos != "", "Please insert a valid string to save to."
+            plt.imsave(fname=savepos)
+        plt.show()
 
     def DataCreator(sourceimg, outputcsv, xaxis_map, yaxis_map,
                     xlabel="x", ylabel="y"):
@@ -78,25 +87,26 @@ class Verifier():
         greens_arr.sort()
         blues_arr.sort()
         print(len(greens_arr), len(blues_arr), len(reds_arr))
-        print(greens_arr)
-        print(blues_arr)
         blues_arr = [(x, xaxis_map[i]) for i, x in enumerate(blues_arr)]
         greens_arr = [(y, yaxis_map[i]) for i, y in enumerate(greens_arr)]
+        print(greens_arr)
+        print(blues_arr)
 
         # Obtain the bounds of the image
         upperleftpos = (min(blues_arr, key=lambda x: x[0])[0],
                         min(greens_arr, key=lambda x: x[0])[0])
         lowerrightpos = (max(blues_arr, key=lambda x: x[0])[0],
                          max(greens_arr, key=lambda x: x[0])[0])
+        print(upperleftpos, lowerrightpos)
 
         # Turn position of value in the image to a value in the plot
         crudedata = []
         for point in reds_arr:
             # Check if data in bounds
-            if (upperleftpos[0] <= point[0] and
-                    point[0] <= lowerrightpos[0] and
-                    upperleftpos[1] <= point[1] and
-                    point[1] <= lowerrightpos[1]):
+            if (upperleftpos[0] <= point[0]
+                 and point[0] <= lowerrightpos[0]
+                 and upperleftpos[1] <= point[1]
+                 and point[1] <= lowerrightpos[1]):
 
                 xbetween = len(blues_arr)-2
                 ybetween = len(greens_arr)-2
@@ -112,13 +122,13 @@ class Verifier():
                 xinterval = (blues_arr[xbetween+1][0]-blues_arr[xbetween][0])
                 yinterval = (greens_arr[ybetween+1][0]-greens_arr[ybetween][0])
                 # percentage to take of left one
-                p_leftx = (point[0]-blues_arr[xbetween][0])/xinterval
+                p_leftx = 1-(point[0]-blues_arr[xbetween][0])/xinterval
                 # percentage to take of lower y one
-                p_lowery = (point[1]-greens_arr[ybetween][0])/yinterval
-                xdata = p_leftx*blues_arr[xbetween][0] + \
-                    (1-p_leftx)*blues_arr[xbetween+1][0]
-                ydata = p_lowery*greens_arr[ybetween][0] + \
-                    (1-p_lowery)*greens_arr[ybetween+1][0]
+                p_lowery = 1-(point[1]-greens_arr[ybetween][0])/yinterval
+                xdata = p_leftx*blues_arr[xbetween][1] + \
+                    (1-p_leftx)*blues_arr[xbetween+1][1]
+                ydata = p_lowery*greens_arr[ybetween][1] + \
+                    (1-p_lowery)*greens_arr[ybetween+1][1]
                 if (xdata < 0):
                     print(xdata, p_leftx, xinterval,
                           point[0], blues_arr[xbetween][0])
@@ -126,7 +136,10 @@ class Verifier():
                     print(ydata, p_lowery, yinterval, point[1],
                           greens_arr[ybetween][0])
                 crudedata.append((point[0], point[1], xdata, ydata))
-        # print(crudedata)
+                # if (point[1] == 762):
+                #     print((point[0], point[1], xdata, ydata))
+                #     print(p_leftx, xinterval,
+                #           point[0], blues_arr[xbetween][1], blues_arr[xbetween+1][1])
 
         # Clean up datapoints; We only want one datapoint per y value.
         data = []
@@ -136,10 +149,8 @@ class Verifier():
                 datadict[crudedata[i][1]] = []
             datadict[crudedata[i][1]].append((crudedata[i][2],
                                               crudedata[i][3]))
-        # print(datadict)
         for key in datadict.keys():
             data.append(np.average(datadict[key], axis=0))
-        # print(data)
         data = np.array(data).transpose()
         mydataframe = pd.DataFrame()
         mydataframe[xlabel] = data[0]
@@ -151,9 +162,18 @@ class Verifier():
 
 
 if __name__ == "__main__":
-    Verifier.DataCreator("ValidationSets/NASA data/Flight path data.png",
-                         "ValidationSets/NASA data/Flight path data.csv",
-                         {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
-                         {0: 200, 1: 150, 2: 100, 3: 50, 4: 0},
-                         xlabel="Speed (thousands of feet per second)",
-                         ylabel="Altitude (thousands of feet)")
+    pass
+    # verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
+    #                     sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
+    # print(np.shape(verificationdata))
+    # verificationdata = (verificationdata.T)[1:]
+    # print(verificationdata)
+    # Verifier.PlotData(verificationdata, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+
+
+    # Verifier.DataCreator("ValidationSets/NASA data/Flight path data.png",
+    #                      "ValidationSets/NASA data/Flight path data.csv",
+    #                      {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
+    #                      {0: 200, 1: 150, 2: 100, 3: 50, 4: 0},
+    #                      xlabel="Speed (thousands of feet per second)",
+    #                      ylabel="Altitude (thousands of feet)")
