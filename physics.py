@@ -3,19 +3,20 @@
 import numpy as np
 
 class Rocket():
-    def __init__(self, g=9.81, rho=1.225, Cd=0.5, A=0.1,
-                 I_sp=440.0, T=66000.0, M = 20000, Mp=13600.0, t_b=100.0):
+    def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
+        T=5130.0, M=1543.0, Mp=886.0, t_b=10, I=32800.0, la=85):
 
-        self.g = g              # gravitational acceleration (m/s^2)
-        self.rho = rho          # air density (kg/m^3)
+        self.g = g              # gravitational acceleration (ft/s^2)
+        self.rho = rho          # air density (slug/ft^3)
         self.Cd = Cd            # drag coefficient
-        self.A = A              # cross-sectional area (m^2)
-        self.I_sp = I_sp        # specific impulse (s)
-        self.T = T              # thrust (N)
-        self.Mp = Mp            # propellant mass (kg)
-        self.Mr = M             # rocket mass (kg)
-        self.t_b = t_b          # burn time (s)
-
+        self.A = A              # cross-sectional area (ft^2), largest diameter occurs at nike nozzle
+        self.I = I              # Total impulse (lb-sec)
+        self.T = T              # thrust (lbf)
+        self.Mp = Mp            # propellant mass (Nike + Apache) (lbs)
+        self.Mr = M             # rocket mass (lbs)
+        self.t_b = t_b          # burn time (sec) (Nike + Apache)
+        self.la=np.deg2rad(la)  # launch angle (radians)
+        self.Re = 2.09e7        # approx. earth radius in feet
 
     def rocket_1d_dynamics(self, t, state):
         """
@@ -39,12 +40,11 @@ class Rocket():
             # Thrust is constant T
             thrust = self.T
             # Constant mass flow rate
-            mdot = self.T / (self.I_sp * self.g)
+            mdot = self.I / (self.t_b * self.g)
         else:
             # No more thrust
             thrust = 0.0
             mdot = 0.0
-
 
         # Forces
         F_weight = -m * self.g
@@ -57,3 +57,58 @@ class Rocket():
 
         return np.array([v, a, -mdot])
 
+    def rocket_2d_dynamics(self, t, state):
+        """
+        Computes the time derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt, dm/dt)
+        for a 1D rocket under nonconstant gravity.
+
+        There is no rail or launch constraint phase in the simulation.
+        """
+
+        #Unpack state
+        x, y, vx, vy, m = state
+
+        # Decide if rocket is still burning
+        if t < self.t_b:
+            # Thrust is constant T
+            thrust = self.T
+            mdot = self.I / (self.t_b * self.g)  # Mass flow rate
+        else:
+            # No more thrust
+            thrust = 0.0
+            mdot = 0.0
+
+        #Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
+        g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
+
+        #Flight angle from vertical
+        fa = np.arctan2(vx, vy)
+
+        speed = np.sqrt(vx**2 + vy**2)
+        if speed > 1e-12:
+            vx_hat = vx / speed
+            vy_hat = vy / speed
+        else:
+            vx_hat = 0
+            vy_hat = 0
+
+        #Drag magnitude
+        D = 0.5 * self.rho * self.Cd * self.A * speed**2
+
+        #Drag forces(opposite to velocity)
+        Fx_drag = -D * vx_hat
+        Fy_drag = -D * vy_hat
+
+        #Thrust forces
+        Fx_thrust = thrust * np.sin(fa)
+        Fy_thrust = thrust * np.cos(fa)
+
+        #Net forces
+        Fx_net = Fx_drag + Fx_thrust
+        Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
+
+        #Accelerations
+        ax = Fx_net / m
+        ay = Fy_net / m
+
+        return np.array([vx, vy, ax, ay, -mdot])
