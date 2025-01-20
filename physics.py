@@ -10,8 +10,9 @@ class Rocket():
         self.rho = rho          # air density (slug/ft^3)
         self.Cd = Cd            # drag coefficient
         self.A = A              # cross-sectional area (ft^2), largest diameter occurs at nike nozzle
-        self.T = T              # thrust of Apache (lbf)
-        self.I = T * t_b        # Total impulse of Apache (lb-sec)
+        self.T = T              # thrust of Nike (lbf)
+        self.I = T * t_b        # Total impulse of Nike (lb-sec)
+        self.mass_flow_nike = (Mp-131) / t_b # We know that we use up 755 lbs of propellant.
         self.Mp = Mp            # propellant mass (Nike + Apache) (lbs)
         self.Mr = M             # total rocket mass with propellant (lbs)
         self.t_b = t_b          # burn time (sec) (Nike + Apache)
@@ -53,7 +54,8 @@ class Rocket():
             # Thrust is constant T
             thrust = self.T
             # Constant mass flow rate
-            mdot = self.I / (self.t_b * self.g)
+            # mdot = self.I / (self.t_b * self.g) # Note that this doesn't work because Impulse =/= Specific Impulse
+            mdot = self.mass_flow_nike
         else:
             # No more thrust
             thrust = 0.0
