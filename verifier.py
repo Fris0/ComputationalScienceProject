@@ -154,14 +154,14 @@ class Verifier():
 
 if __name__ == "__main__":
     currocket = Rocket()
-    currocket.Mp = 755.0
-    currocket.t_b = 3.5
-    currocket.Mr = 0
-    with open("ValidationSets/NASA data/rocket_mass.txt") as file:
-        for line in file:
-            currocket.Mr += float(line)
-    currocket.T = 22820
-    currocket.Cd = 0.5 # See page 10.
+    # currocket.Mp = 755.0
+    # currocket.t_b = 3.5
+    # currocket.Mr = 0
+    # with open("ValidationSets/NASA data/rocket_mass.txt") as file:
+    #     for line in file:
+    #         currocket.Mr += float(line)
+    # currocket.T = 22820
+    # currocket.Cd = 0.5 # See page 10.
     # currocket.A =
     # currocket.I_sp =
 
@@ -177,7 +177,8 @@ if __name__ == "__main__":
     verificationdata = (verificationdata.T)[1:]
     print(np.shape(verificationdata))
     # print(verificationdata)
-    Verifier.PlotData(modeldata, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+    Verifier.PlotData(np.array(modeldata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+    # Verifier.PlotData(np.array(modeldata)/1000, , "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
 
 
     # Verifier.DataCreator("ValidationSets/NASA data/Flight path data.png",
