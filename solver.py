@@ -5,7 +5,7 @@ from physics import Rocket
 import numpy as np
 
 class Solver():
-    def __init__(self, tolerance=1, tbegin=0, tend=20, min_its=10e4, max_its=10e7):  # General settings for the solver.
+    def __init__(self, tolerance=1e4, tbegin=0, tend=20, min_its=10e4, max_its=10e7):  # General settings for the solver.
         self.eps = tolerance
         self.tbegin = tbegin
         self.tend = tend

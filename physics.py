@@ -4,14 +4,15 @@ import numpy as np
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-        T=5130.0, M=1534.0, Mp=886.0, t_b=10, I=32800.0, la=85):
+        T=42500, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
         self.Cd = Cd            # drag coefficient
         self.A = A              # cross-sectional area (ft^2), largest diameter occurs at nike nozzle
-        self.I = I              # Total impulse of Apache (lb-sec)
-        self.T = T              # thrust of Apache (lbf)
+        self.T = T              # thrust of Nike (lbf)
+        self.I = T * t_b        # Total impulse of Nike (lb-sec)
+        self.mass_flow_nike = (Mp-131) / t_b # We know that we use up 755 lbs of propellant.
         self.Mp = Mp            # propellant mass (Nike + Apache) (lbs)
         self.Mr = M             # total rocket mass with propellant (lbs)
         self.t_b = t_b          # burn time (sec) (Nike + Apache)
@@ -28,8 +29,8 @@ class Rocket():
         self.A_a   = 0.239      # cross-sectional area (ft^2) after Nike detaches
         self.T_n = 42500        # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
-        self.T_a = self.T        # Thrust of Apache (lbf)
-        self.I_a = self.I        # Total impulse of Apache (lb-sec)
+        self.T_a = 5130.0       # Thrust of Apache (lbf)
+        self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
 
     def rocket_1d_dynamics(self, t, state):
         """
@@ -53,7 +54,8 @@ class Rocket():
             # Thrust is constant T
             thrust = self.T
             # Constant mass flow rate
-            mdot = self.I / (self.t_b * self.g)
+            # mdot = self.I / (self.t_b * self.g) # Note that this doesn't work because Impulse =/= Specific Impulse
+            mdot = self.mass_flow_nike
         else:
             # No more thrust
             thrust = 0.0
