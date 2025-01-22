@@ -20,7 +20,7 @@ class Rocket():
         self.la=np.deg2rad(la)  # launch angle (radians)
         self.Re = 2.09e7        # approx. earth radius in feet
 
-        #Two stage addiitons
+        #Two stage additions
         self.Launcher = 0.25    # Launcher rod of Nike Apache (ft) (data on 21 or 0.25ft)
         self.t_b_a = 6.36       # burn time (sec) (Apache)
         self.t_b_n = 3.5        # burn time (sec) (Nike)
@@ -32,13 +32,15 @@ class Rocket():
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
         self.T_a = 5130.0       # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
-        self.mass_flow_apache = self.Mr_a / t_b_a #Apache Mass flow rate (lbs/sec)
+        self.mass_flow_apache = self.Mr_a / self.t_b_a #Apache Mass flow rate (lbs/sec)
 
     def rocket_1d_dynamics(self, t, state):
         """
         Computes the time derivatives (dy/dt, dv/dt, dm/dt)
         for a 1D rocket under constant gravity and drag.
 
+        t = time of type float
+        state = a tuple of size 3 containing altitude, velocity and mass.
 
         Resulting ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
@@ -56,7 +58,6 @@ class Rocket():
             # Thrust is constant T
             thrust = self.T
             # Constant mass flow rate
-            # mdot = Mass of propellant / burn rate
             mdot = self.mass_flow_nike
         else:
             # No more thrust
@@ -65,12 +66,15 @@ class Rocket():
 
         # Forces
         F_weight = -m * self.g
-        F_drag = -0.5 * self.rho * self.Cd * self.A * v * abs(v)
+        F_drag = -0.5 * self.rho * self.Cd * self.A * v**2
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
         # Acceleration
         a = F_net / m
+
+        if (y <= 0 and v < 0):
+            v = 0
 
         return np.array([v, a, -mdot])
 
