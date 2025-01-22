@@ -100,10 +100,12 @@ if __name__ == "__main__":
     T = solver.tend - solver.tbegin
     x = np.linspace(0, T, int(solver.min_its))
 
-    fig, ax = plt.subplots(1, 2)
-    ax[0].plot(x, altitude[:-1], label="Altitude")
-    ax[0].plot(x, velocity[:-1], label="Velocity")
-    ax[1].plot(x, mass[:-1], label="Mass")
-    ax[0].legend()
-    ax[1].legend()
+    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
+    ax[0][0].plot(x, altitude[:-1], label="Altitude")
+    ax[0][0].plot(x, velocity[:-1], label="Velocity")
+    ax[0][1].plot(x, mass[:-1], label="Mass")
+    ax[1][0].plot(velocity, altitude)
+    ax[1][0].set_xlabel("Velocity")
+    ax[1][0].set_ylabel("Altitude")
+    ax[0][0].legend()
     plt.show()
