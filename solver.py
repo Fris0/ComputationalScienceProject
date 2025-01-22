@@ -3,9 +3,10 @@
 
 from physics import Rocket
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Solver():
-    def __init__(self, tolerance=1e4, tbegin=0, tend=20, min_its=10e4, max_its=10e7):  # General settings for the solver.
+    def __init__(self, tolerance=1e4, tbegin=0, tend=5, min_its=10e4, max_its=10e7):  # General settings for the solver.
         self.eps = tolerance
         self.tbegin = tbegin
         self.tend = tend
@@ -33,7 +34,7 @@ class Solver():
         un1 = un + h/6 * (k1 + 2*k2 + 2*k3 + k4)
         return un1
 
-    def solve_general(u_0, f, T, N):
+    def solve_general(self, u_0, f, T, N):
         """
         Solve the ODE with a fourth order Runge-Kutta method.
         Arguments:
@@ -68,27 +69,41 @@ class Solver():
         Side effects:
             - None
         """
-        mass = rocket.Mr + rocket.Mp
+
+        # Starting conditions
+        mass = rocket.Mr
         altitude = 0
         velocity = 0
-        print(f"Intial conditions are: {mass, altitude, velocity}")
-        T = self.tend-self.tbegin
-        N = int(self.min_its)
         args = np.array([altitude, velocity, mass])
-        sol1 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
-        sol2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
-        mymax = np.max(np.abs(np.repeat(sol1, repeats=2, axis=0)[:-1] -sol2))
-        while (mymax >= self.eps and 2 * N < self.max_its):
-            print(f"Desired tolerance not reached, increasing number of \
-                  interpolation points to {N} and current maximum error is {mymax}")
-            N *= 2
-            sol1 = sol2
-            sol2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
-        return sol2
 
+        # Print initial values to stdout
+        print(f"Intial conditions are: {altitude, velocity, mass}")
+        T = self.tend-self.tbegin  # Total run time.
+        N = int(self.min_its) # Steps
 
+        result = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+
+        return result
+    
 if __name__ == "__main__":
-    pass
-#     mysolver = Solver()
-#     currocket = Rocket()
-#     mysolver.solve_rocket(currocket)
+    rocket = Rocket()
+    solver = Solver()
+    result = solver.solve_rocket(rocket)
+
+    print(result[0], result[1])
+
+    altitude = result[:, 0].reshape(1, -1)[0]
+    velocity = result[:, 1].reshape(1, -1)[0]
+    mass = result[:, 2].reshape(1, -1)[0]
+
+
+    T = solver.tend - solver.tbegin
+    x = np.linspace(0, T, int(solver.min_its))
+
+    fig, ax = plt.subplots(1, 2)
+    ax[0].plot(x, altitude[:-1], label="Altitude")
+    ax[0].plot(x, velocity[:-1], label="Velocity")
+    ax[1].plot(x, mass[:-1], label="Mass")
+    ax[0].legend()
+    ax[1].legend()
+    plt.show()
