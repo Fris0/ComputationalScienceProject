@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 
 class Solver():
     def __init__(self, tolerance=1e4, tbegin=0, tend=5, min_its=10e4, max_its=10e7):  # General settings for the solver.
+        """
+        Parameters:
+            - min_its, should be divisible by 2.
+        """
         self.eps = tolerance
         self.tbegin = tbegin
         self.tend = tend
@@ -57,7 +61,7 @@ class Solver():
 
         return u
 
-    def solve_rocket(self, rocket):
+    def solve_rocket1d(self, rocket):
         """
         Solves the system of equations for a specific rocket.
 
@@ -81,8 +85,8 @@ class Solver():
         T = self.tend-self.tbegin  # Total run time.
         N = int(self.min_its) # Steps
 
-        result = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
-        result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
+        result = self.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
+        result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] -result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
@@ -91,12 +95,54 @@ class Solver():
             N *= 2
             result = result_2
             result_2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
-        return result_2
-    
+        return np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
+
+    def solve_rocket2d(self, rocket):
+        """
+        Solves the system of equations for a specific rocket.
+
+        Input:
+            - rocket, A rocket class object, contains the rocket we want to launch
+        Output:
+            - sol2, a (N + 1, 3) array containing the [altitude, velocity, mass]
+              at various timesteps.
+        Side effects:
+            - None
+        """
+
+        # Starting conditions
+        mass = rocket.Mr
+        posx = 0
+        posy = 0
+        velx = 0
+        vely = 0
+        args = np.array([posx, posy, velx, vely, mass])
+
+        # Print initial values to stdout
+        print(f"Intial conditions are: {posx, posy, velx, vely, mass}")
+        T = self.tend-self.tbegin  # Total run time.
+        N = int(self.min_its) # Steps
+
+        result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
+        result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] -result_2))
+
+        while (mymax >= self.eps and 2 * N < self.max_its):
+            print(f"Desired tolerance not reached, increasing number of \
+                  interpolation points to {N} and current maximum error is {mymax}")
+            N *= 2
+            result = result_2
+            result_2 = Solver.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+        return_list = np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
+        return np.asarray([[(np.sqrt(item[0]**2 + item[1]**2),
+                             np.sqrt(item[2]**2 + item[3]**2), item[4])
+                             for item in result]
+                             for result in return_list])
+
 if __name__ == "__main__":
     rocket = Rocket()
     solver = Solver()
-    result = solver.solve_rocket(rocket)
+    result = solver.solve_rocket1d(rocket)
 
     print(result[0], result[1])
 
