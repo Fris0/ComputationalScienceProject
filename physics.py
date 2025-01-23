@@ -32,11 +32,11 @@ def rho(h):
 
     rho_b, T_b, L_b = values[level]
 
-    case = 2 if (level = 1 or level = 4) else 1
+    case = 2 if (level == 1 or level == 4) else 1
     
-    if case = 1:
-        return rho_b * ((T_b - (h-h_b)L_b)(T_b))**((g_0*M)/(R*L_b)-1)
-    elif case = 2:
+    if case == 1:
+        return rho_b * ((T_b - (h-h_b)*L_b)/(T_b))**((g_0*M)/(R*L_b)-1)
+    elif case == 2:
         return rho_b * np.e()**((-1*g_0*M*(h-h_b))/(R*T_b))
 
 class Rocket():
