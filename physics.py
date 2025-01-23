@@ -47,7 +47,7 @@ def rho(h):
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-        T=42500, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
+        T=42500*32, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
@@ -109,7 +109,7 @@ class Rocket():
 
         # Forces
         F_weight = -m * self.g
-        F_drag = -0.5 * self.rho * self.Cd * self.A * v**2
+        F_drag = -0.5 * rho(y) * self.Cd * self.A * v**2
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
@@ -157,7 +157,7 @@ class Rocket():
             vy_hat = 0
 
         #Drag magnitude
-        D = 0.5 * self.rho * self.Cd * self.A * speed**2
+        D = 0.5 * rho(y) * self.Cd * self.A * speed**2
 
         #Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
@@ -229,7 +229,7 @@ class Rocket():
             vy_hat = 0
 
         #Drag magnitude
-        D = 0.5 * self.rho * self.Cd * area * speed**2
+        D = 0.5 * rho(y) * self.Cd * area * speed**2
 
         #Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
