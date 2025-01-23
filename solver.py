@@ -82,8 +82,16 @@ class Solver():
         N = int(self.min_its) # Steps
 
         result = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+        result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
+        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] -result_2))
 
-        return result
+        while (mymax >= self.eps and 2 * N < self.max_its):
+            print(f"Desired tolerance not reached, increasing number of \
+                  interpolation points to {N} and current maximum error is {mymax}")
+            N *= 2
+            result = result_2
+            result_2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+        return result_2
     
 if __name__ == "__main__":
     rocket = Rocket()
