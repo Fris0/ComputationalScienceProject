@@ -1,5 +1,5 @@
 # Here the general physics.
-# Responsible people: Hans, George
+# Responsible people: Hans, George, Riemer, Mark, Rik
 import numpy as np
 
 def rho(h):
