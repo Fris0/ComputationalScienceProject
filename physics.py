@@ -1,6 +1,8 @@
 # Here the general physics.
 # Responsible people: Hans, George, Riemer, Mark, Rik
 import numpy as np
+from fps_to_cd import fps_to_Cd
+
 
 def rho(h):
     """
@@ -16,38 +18,38 @@ def rho(h):
     M = 0.0289644               # Molar mass of earth;s air (kg/mol)
 
     boundaries = [0, 36089.24, 65616.79, 104986.87, 154199.48, 167322.83, 232939.63]
-    
+
     values = {
-    0: (2.3768908E-3, 288.15, 0.0019812),
-    1: (7.0611703, 216.65, 0),
-    2: (1.7081572, 216.65,-0.0003048),
-    3: (2.5660735, 228.65, -0.00085344),
-    4: (2.7698702, 270.65, 0),
-    5: (1.6717895, 270.65, 0.00085344),
-    6: (1.2458989, 214.65, 0.0006096)
+        0: (2.3768908E-3, 288.15, 0.0019812),
+        1: (7.0611703, 216.65, 0),
+        2: (1.7081572, 216.65, -0.0003048),
+        3: (2.5660735, 228.65, -0.00085344),
+        4: (2.7698702, 270.65, 0),
+        5: (1.6717895, 270.65, 0.00085344),
+        6: (1.2458989, 214.65, 0.0006096)
     }
-    
+
     if h in boundaries:
-        level = boundaries.index(h) 
+        level = boundaries.index(h)
     else:
         boundaries.append(h)
         boundaries.sort()
         level = boundaries.index(h) - 1
-    
 
     rho_b, T_b, L_b = values[level]
     h_b = boundaries[level]
 
     case = 2 if (level == 1 or level == 4) else 1
-    
+
     if case == 1:
         return rho_b * ((T_b - (h-h_b)*L_b)/(T_b))**((g_0*M)/(R*L_b)-1)
     elif case == 2:
         return rho_b * np.e()**((-1*g_0*M*(h-h_b))/(R*T_b))
 
+
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-        T=42500*32, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
+                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
@@ -59,23 +61,23 @@ class Rocket():
         self.Mr = M             # total rocket mass with propellant (lbs)
         self.Mp = Mp            # propellant mass (Nike + Apache) (lbs)
         self.Mr_n = 755.0       # Total propellant mass in Nike (lbs)
-        self.mass_flow_nike = self.Mr_n / t_b #Nike Mass flow rate (lbs/sec)
-        self.la=np.deg2rad(la)  # launch angle (radians)
+        self.mass_flow_nike = self.Mr_n / t_b  # Nike Mass flow rate (lbs/sec)
+        self.la = np.deg2rad(la)  # launch angle (radians)
         self.Re = 2.09e7        # approx. earth radius in feet
 
-        #Two stage additions
+        # Two stage additions
         self.Launcher = 0.25    # Launcher rod of Nike Apache (ft) (data on 21 or 0.25ft)
         self.t_b_a = 6.36       # burn time (sec) (Apache)
         self.t_b_n = 3.5        # burn time (sec) (Nike)
         self.t_int = 16.5       # time between Nike burnout and Apache ignition (sec)
-        self.Mr_a  = 131.0      # total propellant mass in Apache after Nike burnout (lbs)
-        self.Mp_a  = 217.0      # rocket mass after Nike detaches (lbs)
-        self.A_a   = 0.239      # cross-sectional area (ft^2) after Nike detaches
+        self.Mr_a = 131.0      # total propellant mass in Apache after Nike burnout (lbs)
+        self.Mp_a = 217.0      # rocket mass after Nike detaches (lbs)
+        self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
         self.T_n = 42500.0      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
         self.T_a = 5130.0       # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
-        self.mass_flow_apache = self.Mr_a / self.t_b_a #Apache Mass flow rate (lbs/sec)
+        self.mass_flow_apache = self.Mr_a / self.t_b_a  # Apache Mass flow rate (lbs/sec)
 
     def rocket_1d_dynamics(self, t, state):
         """
@@ -93,8 +95,8 @@ class Rocket():
             engine is burning, then remains unchanged after burnout)
         """
 
-        #Unpack state
-        y,v,m = state
+        # Unpack state
+        y, v, m = state
 
         # Decide if rocket is still burning
         if t < self.t_b:
@@ -109,7 +111,7 @@ class Rocket():
 
         # Forces
         F_weight = -m * self.g
-        F_drag = -0.5 * rho(y) * self.Cd * self.A * v**2
+        F_drag = -0.5 * rho(y) * fps_to_Cd(v) * self.A * v**2
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
@@ -129,7 +131,7 @@ class Rocket():
         There is no rail or launch constraint phase in the simulation.
         """
 
-        #Unpack state
+        # Unpack state
         x, y, vx, vy, m = state
 
         # Decide if rocket is still burning
@@ -142,10 +144,10 @@ class Rocket():
             thrust = 0.0
             mdot = 0.0
 
-        #Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
+        # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
         g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
 
-        #Flight angle from vertical
+        # Flight angle from vertical
         fa = np.arctan2(vx, vy)
 
         speed = np.sqrt(vx**2 + vy**2)
@@ -156,22 +158,22 @@ class Rocket():
             vx_hat = 0
             vy_hat = 0
 
-        #Drag magnitude
-        D = 0.5 * rho(y) * self.Cd * self.A * speed**2
+        # Drag magnitude
+        D = 0.5 * rho(y) * fps_to_Cd(speed) * self.A * speed**2
 
-        #Drag forces(opposite to velocity)
+        # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
         Fy_drag = -D * vy_hat
 
-        #Thrust forces
+        # Thrust forces
         Fx_thrust = thrust * np.sin(fa)
         Fy_thrust = thrust * np.cos(fa)
 
-        #Net forces
+        # Net forces
         Fx_net = Fx_drag + Fx_thrust
         Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
 
-        #Accelerations
+        # Accelerations
         ax = Fx_net / m
         ay = Fy_net / m
 
@@ -187,37 +189,37 @@ class Rocket():
         4) Post-burn coast: t >= t_b_n + t_int + t_b_a
         """
 
-        #Unpack state
+        # Unpack state
         x, y, vx, vy, m = state
 
-        #Stage 1 Nike Burn and Detach
+        # Stage 1 Nike Burn and Detach
         if t < self.t_b_n:
             thrust = self.T_n
             mdot = self.mass_flow_nike
             area = self.A
 
-        #Nike dropped, no thrust
+        # Nike dropped, no thrust
         elif t < self.t_b_n + self.t_int:
             thrust = 0.0
             mdot = 0.0
             area = self.A_a
 
-        #Stage 2 Apache burn
+        # Stage 2 Apache burn
         elif t < self.t_b_n + self.t_int + self.t_b_a:
             thrust = self.T_a
             mdot = self.mass_flow_apache
             area = self.A_a
 
-        #Post Apache burnout
+        # Post Apache burnout
         else:
             thrust = 0.0
             mdot = 0.0
             area = self.A_a
 
-        #Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
+        # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
         g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
 
-        #Flight angle from vertical
+        # Flight angle from vertical
         fa = np.arctan2(vx, vy)
 
         speed = np.sqrt(vx**2 + vy**2)
@@ -228,24 +230,23 @@ class Rocket():
             vx_hat = 0
             vy_hat = 0
 
-        #Drag magnitude
-        D = 0.5 * rho(y) * self.Cd * area * speed**2
+        # Drag magnitude
+        D = 0.5 * rho(y) * fps_to_Cd(speed) * area * speed**2
 
-        #Drag forces(opposite to velocity)
+        # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
         Fy_drag = -D * vy_hat
 
-        #Thrust forces
+        # Thrust forces
         Fx_thrust = thrust * np.sin(fa)
         Fy_thrust = thrust * np.cos(fa)
 
-        #Net forces
+        # Net forces
         Fx_net = Fx_drag + Fx_thrust
         Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
 
-        #Accelerations
+        # Accelerations
         ax = Fx_net / m
         ay = Fy_net / m
 
         return np.array([vx, vy, ax, ay, -mdot])
-
