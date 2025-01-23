@@ -44,7 +44,7 @@ def rho(h):
     if case == 1:
         return rho_b * ((T_b - (h-h_b)*L_b)/(T_b))**((g_0*M)/(R*L_b)-1)
     elif case == 2:
-        return rho_b * np.e()**((-1*g_0*M*(h-h_b))/(R*T_b))
+        return rho_b * np.e**((-1*g_0*M*(h-h_b))/(R*T_b))
 
 
 class Rocket():
@@ -134,6 +134,8 @@ class Rocket():
         # Unpack state
         x, y, vx, vy, m = state
 
+        h = np.sqrt(x**2 + y**2)
+
         # Decide if rocket is still burning
         if t < self.t_b:
             # Thrust is constant T
@@ -145,7 +147,7 @@ class Rocket():
             mdot = 0.0
 
         # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
-        g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
+        g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
         fa = np.arctan2(vx, vy)
@@ -159,7 +161,7 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        D = 0.5 * rho(y) * fps_to_Cd(speed) * self.A * speed**2
+        D = 0.5 * rho(h) * fps_to_Cd(speed) * self.A * speed**2
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
@@ -192,6 +194,8 @@ class Rocket():
         # Unpack state
         x, y, vx, vy, m = state
 
+        h = np.sqrt(x**2 + y**2)
+
         # Stage 1 Nike Burn and Detach
         if t < self.t_b_n:
             thrust = self.T_n
@@ -217,7 +221,7 @@ class Rocket():
             area = self.A_a
 
         # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
-        g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
+        g_local = self.g * (self.Re / (self.Re + h)**2) if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
         fa = np.arctan2(vx, vy)
@@ -231,7 +235,7 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        D = 0.5 * rho(y) * fps_to_Cd(speed) * area * speed**2
+        D = 0.5 * rho(h) * fps_to_Cd(speed) * area * speed**2
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
@@ -250,3 +254,15 @@ class Rocket():
         ay = Fy_net / m
 
         return np.array([vx, vy, ax, ay, -mdot])
+
+if __name__ == "__main__":
+    h = np.linspace(0,300000,1000000)
+    rhos = []
+    for height in h:
+        rhos.append(rho(height))
+    import matplotlib.pyplot as plt
+    plt.plot(h, rhos)
+    plt.rcParams["text.usetex"]=True
+    plt.xlabel("height(feet)")
+    plt.ylabel("Air density(slug/ft$^3$)")
+    plt.show()
