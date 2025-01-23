@@ -25,7 +25,7 @@ class Verifier():
         """
         Function that plots the models data versus the data of the actual solve.
         Input:
-            - modeldata, a 2D numpy array of shape (n,2), with n describing the
+            - modeldata, a 2D numpy array of shape (2,n,2), with n describing the
                         length and furthermore containing an x and y to plot
                         against eachother;
             - verificationdata, a 2D numpy array of shape (n,2), with n
@@ -40,13 +40,14 @@ class Verifier():
         Side effects:
             - If savefig is True writes a figure to the disc.
         """
-
-        plt.plot(modeldata[0], modeldata[1], label="Model data")
-        plt.plot(verificationdata[0], verificationdata[1], label="Verification data")
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.title(titel)
-        plt.legend()
+        figure, axes = plt.subplots(1,2)
+        for i, fig in enumerate(axes):
+            fig.plot(modeldata[i][0], modeldata[i][1], label="Model data")
+            fig.plot(verificationdata[0], verificationdata[1], label="Verification data")
+            fig.set_xlabel(xlabel)
+            fig.set_ylabel(ylabel)
+            fig.set_title(titel)
+            fig.legend()
         if (savefig):
             assert savepos != "", "Please insert a valid string to save to."
             plt.imsave(fname=savepos)
@@ -167,18 +168,30 @@ if __name__ == "__main__":
 
     mysolver = Solver()
     mysolver.tbegin = 0
-    mysolver.tend = 5
+    mysolver.tend = 16
 
-    modeldata = mysolver.solve_rocket(currocket).T
-    modeldata = [modeldata[1], modeldata[0]]
-    print(np.shape(modeldata))
+    # Rotate the two models around their axes.
+    sol = mysolver.solve_rocket2d(currocket)
+    print(np.shape(sol))
+    modeldata = np.transpose(sol, [0, 2, 1])
+    # print(np.transpose(sol, [0, 2, 1]).shape)
+    plotdata = ((modeldata[0][1], modeldata[0][0]), (modeldata[1][1], modeldata[1][0]))
+    # print(np.shape(modeldata))
     verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
                         sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
     verificationdata = (verificationdata.T)[1:]
     print(np.shape(verificationdata))
-    # print(verificationdata)
-    Verifier.PlotData(np.array(modeldata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
-    # Verifier.PlotData(np.array(modeldata)/1000, , "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+    Verifier.PlotData(np.array(plotdata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+    # modeldata = mysolver.solve_rocket(currocket).T
+    # modeldata = [modeldata[1], modeldata[0]]
+    # print(np.shape(modeldata))
+    # verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
+    #                     sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
+    # verificationdata = (verificationdata.T)[1:]
+    # print(np.shape(verificationdata))
+    # # print(verificationdata)
+    # Verifier.PlotData(np.array(modeldata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
+    # # Verifier.PlotData(np.array(modeldata)/1000, , "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
 
 
     # Verifier.DataCreator("ValidationSets/NASA data/Flight path data.png",
