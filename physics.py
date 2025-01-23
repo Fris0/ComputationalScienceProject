@@ -15,10 +15,7 @@ def rho(h):
     g_0 = 32.17405              # gravitational acceleration (ft/s^2)
     M = 0.0289644               # Molar mass of earth;s air (kg/mol)
 
-    boundaries = [36089.24, 65616.79, 104986.87, 154199.48, 167322.83, 232939.63]
-    boundaries.append(h)
-    boundaries.sort()
-    level = boundaries.index(h)
+    boundaries = [0, 36089.24, 65616.79, 104986.87, 154199.48, 167322.83, 232939.63]
     
     values = {
     0: (2.3768908E-3, 288.15, 0.0019812),
@@ -29,8 +26,17 @@ def rho(h):
     5: (1.6717895, 270.65, 0.00085344),
     6: (1.2458989, 214.65, 0.0006096)
     }
+    
+    if h in boundaries:
+        level = boundaries.index(h) 
+    else:
+        boundaries.append(h)
+        boundaries.sort()
+        level = boundaries.index(h) - 1
+    
 
     rho_b, T_b, L_b = values[level]
+    h_b = boundaries[level]
 
     case = 2 if (level == 1 or level == 4) else 1
     
