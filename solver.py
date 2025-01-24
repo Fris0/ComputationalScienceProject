@@ -135,7 +135,7 @@ class Solver():
             result_2 = Solver.solve_general(args, rocket.rocket_2d_dynamics, T, N)
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
         return np.asarray([[(np.sqrt(item[0]**2 + item[1]**2),
-                             np.sqrt(item[2]**2 + item[3]**2), item[4])
+                             np.sqrt(item[2]**2 + item[3]**2), item[4], item[1])
                              for item in result]
                              for result in return_list])
 
@@ -143,8 +143,9 @@ if __name__ == "__main__":
     rocket = Rocket()
     solver = Solver()
     result = solver.solve_rocket1d(rocket)
-
-    print(result[0], result[1])
+    
+    result_2 = result[1]
+    result = result [0]
 
     altitude = result[:, 0].reshape(1, -1)[0]
     velocity = result[:, 1].reshape(1, -1)[0]
@@ -162,4 +163,38 @@ if __name__ == "__main__":
     ax[1][0].set_xlabel("Velocity")
     ax[1][0].set_ylabel("Altitude")
     ax[0][0].legend()
+    plt.show()
+
+    rocket = Rocket()
+    solver = Solver()
+    result = solver.solve_rocket2d(rocket)
+    
+    result_2 = result[1]
+    result = result [0]
+
+    altitude = result[:, 0].reshape(1, -1)[0]
+    velocity = result[:, 1].reshape(1, -1)[0]
+    mass = result[:, 2].reshape(1, -1)[0]
+    y = result[:, 3].reshape(1, -1)[0]
+
+
+    T = solver.tend - solver.tbegin
+    x = np.linspace(0, T, int(solver.min_its))
+
+    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
+
+    ax[0][0].plot(x, altitude[:-1], label="Altitude")
+    ax[0][0].plot(x, velocity[:-1], label="Velocity")
+    ax[0][0].legend()
+
+    ax[0][1].plot(x, mass[:-1], label="Mass")
+
+    ax[1][0].plot(velocity, altitude)
+    ax[1][0].set_xlabel("Velocity")
+    ax[1][0].set_ylabel("Altitude")
+
+    ax[1][1].plot(x, y[:-1])
+    ax[1][1].set_xlabel("x")
+    ax[1][1].set_ylabel("y")
+
     plt.show()

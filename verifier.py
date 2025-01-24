@@ -1,24 +1,14 @@
-# Here the verifier of the solver.
 # Responsible person: Rik
-
-# TODO: Fix datacreator.
-
-# from solver import Solver
-# Data manipulation
 import cv2 as cv
 import numpy as np
-# IO
 import pandas as pd
-# Plots
 import matplotlib.pyplot as plt
-# self-made libraries
+
 from solver import Solver
 from physics import Rocket
 
 
 class Verifier():
-    def __init__():  # Here general settings for the verifier
-        pass
 
     def PlotData(modeldata, verificationdata, xlabel="x",
                  ylabel="y", titel="Temp", savefig=False, savepos=""):
