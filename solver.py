@@ -127,15 +127,17 @@ class Solver():
         result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
         result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
 
-        # mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
-        my95th = np.percentile(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2), 95)
+        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
+        # my95th = np.percentile(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2), 95)
 
-        # while (my95th >= self.eps and 2 * N < self.max_its):
-        #     print(f"Desired tolerance not reached, increasing number of \
-        #           interpolation points to {N} and current maximum error is {my95th}")
-        #     N *= 2
-        #     result = result_2
-        #     result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+        while (mymax >= self.eps and 2 * N < self.max_its):
+            print(f"Desired tolerance not reached, increasing number of \
+                  interpolation points to {N} and current maximum error is {mymax}")
+            N *= 2
+            result = result_2.__deepcopy__()
+            result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+            mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
+            print(f"New maximum error is {mymax}")
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
         return np.asarray([[(item[0], item[1],
                              np.sqrt(item[2]**2 + item[3]**2), item[4])
