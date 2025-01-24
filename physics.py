@@ -8,29 +8,12 @@ def rho(h):
     """
     Calculates the altitude specific atmospheric density in slug/ft^3
 
+    First calculates the density in kg/m^3 and then converts it to slug/ft^3
+
     h: height in feet
 
-    returns rho in slug/ft^3
+    returns: rho in slug/ft^3
     """
-
-    #Imperial:
-    # R = 8.9494596E4             # Universal gas constant (ft^2(s*K))
-    # g_0 = 32.17405              # gravitational acceleration (ft/s^2)
-    # M = 0.0289644               # Molar mass of earth;s air (kg/mol)
-
-    # boundaries = [0, 36089.24, 65616.79, 104986.87, 154199.48, 167322.83, 232939.63]
-
-    # values = {
-    #     0: (2.3768908E-3, 288.15, 0.0019812),
-    #     1: (7.0611703, 216.65, 0),
-    #     2: (1.7081572, 216.65, -0.0003048),
-    #     3: (2.5660735, 228.65, -0.00085344),
-    #     4: (2.7698702, 270.65, 0),
-    #     5: (1.6717895, 270.65, 0.00085344),
-    #     6: (1.2458989, 214.65, 0.0006096)
-    # }
-
-    #metric
 
     R = 8.3144598       # Universal gas constant (N*m/(mol*K))
     g_0 = 9.80665       # gravitational accelaration (m/s^2)
@@ -60,10 +43,11 @@ def rho(h):
     case = 2 if (level == 1 or level == 4) else 1
 
     if case == 1:
-        # print("hoi", rho_b, T_b, L_b, h_b, h)
-        return 0.0019 * rho_b * ((T_b - (h-h_b)*L_b)/(T_b))**((g_0*M)/(R*L_b)-1)
+        rho_metric = rho_b * ((T_b - (h-h_b)*L_b)/(T_b))**((g_0*M)/(R*L_b)-1)
     elif case == 2:
-        return 0.0019* rho_b * np.e**((-1*g_0*M*(h-h_b))/(R*T_b))
+        rho_metric = rho_b * np.e**((-1*g_0*M*(h-h_b))/(R*T_b))
+
+    return 0.0019 * rho_metric
 
 
 class Rocket():
