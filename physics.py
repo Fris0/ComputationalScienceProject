@@ -150,7 +150,10 @@ class Rocket():
         g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
-        fa = np.arctan2(vx, vy)
+        if vx < 0.001 and vy < 0.001:
+            fa = self.la
+        else:
+            fa = np.arctan2(vx, vy)
 
         speed = np.sqrt(vx**2 + vy**2)
         if speed > 1e-12:
@@ -168,8 +171,8 @@ class Rocket():
         Fy_drag = -D * vy_hat
 
         # Thrust forces
-        Fx_thrust = thrust * np.sin(fa)
-        Fy_thrust = thrust * np.cos(fa)
+        Fx_thrust = thrust * np.cos(fa)
+        Fy_thrust = thrust * np.sin(fa)
 
         # Net forces
         Fx_net = Fx_drag + Fx_thrust
@@ -255,8 +258,9 @@ class Rocket():
 
         return np.array([vx, vy, ax, ay, -mdot])
 
+
 if __name__ == "__main__":
-    h = np.linspace(0,300000,1000000)
+    h = np.linspace(0, 300000, 1000000)
     rhos = []
     for height in h:
         rhos.append(rho(height))
