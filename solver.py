@@ -5,6 +5,7 @@ from physics import Rocket
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Solver():
     def __init__(self, tolerance=1e4, tbegin=0, tend=5, min_its=10e4, max_its=10e7):  # General settings for the solver.
         """
@@ -83,11 +84,11 @@ class Solver():
         # Print initial values to stdout
         print(f"Intial conditions are: {altitude, velocity, mass}")
         T = self.tend-self.tbegin  # Total run time.
-        N = int(self.min_its) # Steps
+        N = int(self.min_its)  # Steps
 
         result = self.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
         result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
-        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] -result_2))
+        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
             print(f"Desired tolerance not reached, increasing number of \
@@ -104,7 +105,7 @@ class Solver():
         Input:
             - rocket, A rocket class object, contains the rocket we want to launch
         Output:
-            - sol2, a (N + 1, 3) array containing the [altitude, velocity, mass]
+            - sol2, a (N + 1, 4) array containing the [distance, altitude, velocity, mass]
               at various timesteps.
         Side effects:
             - None
@@ -121,11 +122,11 @@ class Solver():
         # Print initial values to stdout
         print(f"Intial conditions are: {posx, posy, velx, vely, mass}")
         T = self.tend-self.tbegin  # Total run time.
-        N = int(self.min_its) # Steps
+        N = int(self.min_its)  # Steps
 
         result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
         result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
-        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] -result_2))
+        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
             print(f"Desired tolerance not reached, increasing number of \
@@ -134,25 +135,30 @@ class Solver():
             result = result_2
             result_2 = Solver.solve_general(args, rocket.rocket_2d_dynamics, T, N)
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
-        return np.asarray([[(np.sqrt(item[0]**2 + item[1]**2),
+        return np.asarray([[(item[0], item[1],
                              np.sqrt(item[2]**2 + item[3]**2), item[4])
                              for item in result]
                              for result in return_list])
 
+
 if __name__ == "__main__":
-    rocket = Rocket()
+    rocket = Rocket(la=90)
     solver = Solver()
-    result = solver.solve_rocket1d(rocket)
+    result = solver.solve_rocket2d(rocket)
+
+    print(result.shape, end="\n\n")
 
     print(result[0], result[1])
 
-    altitude = result[:, 0].reshape(1, -1)[0]
-    velocity = result[:, 1].reshape(1, -1)[0]
-    mass = result[:, 2].reshape(1, -1)[0]
+    distance = result[0][:, 0].reshape(1, -1)[0]
+    altitude = result[0][:, 1].reshape(1, -1)[0]
+    velocity = result[0][:, 2].reshape(1, -1)[0]
+    mass = result[0][:, 3].reshape(1, -1)[0]
 
+    print("number of close alt and dist = ", len([abs(dis - alt) < 1 for dis, alt in zip(distance, altitude)]))
 
     T = solver.tend - solver.tbegin
-    x = np.linspace(0, T, int(solver.min_its))
+    x = np.linspace(0, T, len(altitude) - 1)
 
     fig, ax = plt.subplots(2, 2, figsize=(10, 8))
     ax[0][0].plot(x, altitude[:-1], label="Altitude")
@@ -162,4 +168,7 @@ if __name__ == "__main__":
     ax[1][0].set_xlabel("Velocity")
     ax[1][0].set_ylabel("Altitude")
     ax[0][0].legend()
+    ax[1][1].plot(distance, altitude)
+    ax[1][1].set_xlabel("distance")
+    ax[1][1].set_ylabel("altitude")
     plt.show()
