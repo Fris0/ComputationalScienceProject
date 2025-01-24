@@ -95,7 +95,7 @@ class Solver():
                   interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
-            result_2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+            result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
         return np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
 
     def solve_rocket2d(self, rocket):
@@ -126,14 +126,16 @@ class Solver():
 
         result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
         result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
-        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
 
-        while (mymax >= self.eps and 2 * N < self.max_its):
-            print(f"Desired tolerance not reached, increasing number of \
-                  interpolation points to {N} and current maximum error is {mymax}")
-            N *= 2
-            result = result_2
-            result_2 = Solver.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+        # mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2))
+        my95th = np.percentile(np.abs(np.repeat(result, repeats=2, axis=0)[:-1] - result_2), 95)
+
+        # while (my95th >= self.eps and 2 * N < self.max_its):
+        #     print(f"Desired tolerance not reached, increasing number of \
+        #           interpolation points to {N} and current maximum error is {my95th}")
+        #     N *= 2
+        #     result = result_2
+        #     result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
         return np.asarray([[(item[0], item[1],
                              np.sqrt(item[2]**2 + item[3]**2), item[4])
@@ -142,20 +144,18 @@ class Solver():
 
 
 if __name__ == "__main__":
-    rocket = Rocket(la=90)
-    solver = Solver()
+    rocket = Rocket(la=85)
+    solver = Solver(tend=500)
     result = solver.solve_rocket2d(rocket)
 
-    print(result.shape, end="\n\n")
+    # print(result.shape, end="\n\n")
 
-    print(result[0], result[1])
+    # print(result[0], result[1])
 
     distance = result[0][:, 0].reshape(1, -1)[0]
     altitude = result[0][:, 1].reshape(1, -1)[0]
     velocity = result[0][:, 2].reshape(1, -1)[0]
     mass = result[0][:, 3].reshape(1, -1)[0]
-
-    print("number of close alt and dist = ", len([abs(dis - alt) < 1 for dis, alt in zip(distance, altitude)]))
 
     T = solver.tend - solver.tbegin
     x = np.linspace(0, T, len(altitude) - 1)
