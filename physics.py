@@ -263,14 +263,14 @@ class Rocket():
         return np.array([vx, vy, ax, ay, -mdot])
 
 
-if __name__ == "__main__":
-    h = np.linspace(0, 300000, 1000000)
-    rhos = []
-    for height in h:
-        rhos.append(rho(height))
-    import matplotlib.pyplot as plt
-    plt.plot(h, rhos)
-    plt.rcParams["text.usetex"]=True
-    plt.xlabel("height(feet)")
-    plt.ylabel("Air density(slug/ft$^3$)")
-    plt.show()
+#if __name__ == "__main__":
+#    h = np.linspace(0, 300000, 1000000)
+#    rhos = []
+#    for height in h:
+#        rhos.append(rho(height))
+#    import matplotlib.pyplot as plt
+#    plt.plot(h, rhos)
+#    plt.rcParams["text.usetex"]=True
+#    plt.xlabel("height(feet)")
+#    plt.ylabel("Air density(slug/ft$^3$)")
+#    plt.show()
