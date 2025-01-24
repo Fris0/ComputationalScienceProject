@@ -52,7 +52,7 @@ def rho(h):
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90):
+                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
@@ -67,6 +67,7 @@ class Rocket():
         self.mass_flow_nike = self.Mr_n / t_b  # Nike Mass flow rate (lbs/sec)
         self.la = np.deg2rad(la)  # launch angle (radians)
         self.Re = 2.09e7        # approx. earth radius in feet
+        self.impact = False     # Boolean telling if rocket has impacted
 
         # Two stage additions
         self.Launcher = 0.25    # Launcher rod of Nike Apache (ft) (data on 21 or 0.25ft)
@@ -138,6 +139,12 @@ class Rocket():
         x, y, vx, vy, m = state
 
         h = np.sqrt(x**2 + y**2)
+
+        if y < 0:
+            self.impact = True
+
+        if self.impact:
+            return np.array([0, 0, 0, 0, 0])
 
         # Decide if rocket is still burning
         if t < self.t_b:
