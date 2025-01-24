@@ -52,7 +52,7 @@ def rho(h):
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
+                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
@@ -150,13 +150,14 @@ class Rocket():
             mdot = 0.0
 
         # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
-        g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
+        g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
 
         # Flight angle from vertical
-        if vx < 0.001 and vy < 0.001:
+        dist = np.sqrt(x**2 + y**2)
+        if dist < 2:
             fa = self.la
         else:
-            fa = np.arctan2(vx, vy)
+            fa = np.arctan2(vy, vx)
 
         speed = np.sqrt(vx**2 + vy**2)
         if speed > 1e-12:
@@ -248,8 +249,8 @@ class Rocket():
         Fy_drag = -D * vy_hat
 
         # Thrust forces
-        Fx_thrust = thrust * np.sin(fa)
-        Fy_thrust = thrust * np.cos(fa)
+        Fx_thrust = thrust * np.cos(fa)
+        Fy_thrust = thrust * np.sin(fa)
 
         # Net forces
         Fx_net = Fx_drag + Fx_thrust
