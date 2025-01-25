@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class Solver():
-    def __init__(self, tolerance=1e4, tbegin=0, tend=50, min_its=10e4, max_its=10e7):  # General settings for the solver.
+    def __init__(self, tolerance=1e4, tbegin=0, tend=5, min_its=10e4, max_its=10e7):  # General settings for the solver.
         """
         Parameters:
             - min_its, should be divisible by 2.
@@ -141,34 +141,34 @@ class Solver():
                              for result in return_list])
 
 
-#if __name__ == "__main__":
-#    rocket = Rocket(la=90)
-#    solver = Solver()
-#    result = solver.solve_rocket2d(rocket)
-#
-#    print(result.shape, end="\n\n")
-#
-#    print(result[0], result[1])
-#
-#    distance = result[0][:, 0].reshape(1, -1)[0]
-#    altitude = result[0][:, 1].reshape(1, -1)[0]
-#    velocity = result[0][:, 2].reshape(1, -1)[0]
-#    mass = result[0][:, 3].reshape(1, -1)[0]
-#
-#    print("number of close alt and dist = ", len([abs(dis - alt) < 1 for dis, alt in zip(distance, altitude)]))
-#
-#    T = solver.tend - solver.tbegin
-#    x = np.linspace(0, T, len(altitude) - 1)
-#
-#    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
-#    ax[0][0].plot(x, altitude[:-1], label="Altitude")
-#    ax[0][0].plot(x, velocity[:-1], label="Velocity")
-#    ax[0][1].plot(x, mass[:-1], label="Mass")
-#    ax[1][0].plot(velocity, altitude)
-#    ax[1][0].set_xlabel("Velocity")
-#    ax[1][0].set_ylabel("Altitude")
-#    ax[0][0].legend()
-#    ax[1][1].plot(distance, altitude)
-#    ax[1][1].set_xlabel("distance")
-#    ax[1][1].set_ylabel("altitude")
-#    plt.show()
+if __name__ == "__main__":
+    rocket = Rocket(la=90)
+    solver = Solver()
+    result = solver.solve_rocket2d(rocket)
+
+    print(result.shape, end="\n\n")
+
+    print(result[0], result[1])
+
+    distance = result[0][:, 0].reshape(1, -1)[0]
+    altitude = result[0][:, 1].reshape(1, -1)[0]
+    velocity = result[0][:, 2].reshape(1, -1)[0]
+    mass = result[0][:, 3].reshape(1, -1)[0]
+
+    print("number of close alt and dist = ", len([abs(dis - alt) < 1 for dis, alt in zip(distance, altitude)]))
+
+    T = solver.tend - solver.tbegin
+    x = np.linspace(0, T, len(altitude) - 1)
+
+    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
+    ax[0][0].plot(x, altitude[:-1], label="Altitude")
+    ax[0][0].plot(x, velocity[:-1], label="Velocity")
+    ax[0][1].plot(x, mass[:-1], label="Mass")
+    ax[1][0].plot(velocity, altitude)
+    ax[1][0].set_xlabel("Velocity")
+    ax[1][0].set_ylabel("Altitude")
+    ax[0][0].legend()
+    ax[1][1].plot(distance, altitude)
+    ax[1][1].set_xlabel("distance")
+    ax[1][1].set_ylabel("altitude")
+    plt.show()

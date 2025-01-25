@@ -17,11 +17,30 @@ from physics import Rocket
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    la = np.linspace(0, 90, 5)  # Testing angles.
+    la = np.linspace(0, 90, 20)  # Testing angles.
+    fig, ax = plt.subplots(1,1, figsize=(16,8))
 
     for angle in la:
+        # Resetting / Starting simulation.
         rocket = Rocket(la=angle)
-        solver = Solver()
+        solver = Solver(tend=400)
+
+        # Simulating with new angle.
         result = solver.solve_rocket2d(rocket)
-        plt.plot(result[0], result[1])
+
+        # Extracting data.
+        distance = result[0][:, 0].reshape(1, -1)[0]
+        altitude = result[0][:, 1].reshape(1, -1)[0]
+
+        # x-axis
+        T = solver.tend - solver.tbegin
+        x = np.linspace(0, T, len(altitude) - 1)
+
+        # Plotting the different angles for analysis
+        ax.plot(distance, altitude, label=str(angle))
+        ax.set_xlabel("Distance")
+        ax.set_ylabel("Altitude")
+
+    ax.set_ylim([0, None])
+    ax.legend()
     plt.show()
