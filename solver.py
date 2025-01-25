@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class Solver():
-    def __init__(self, tolerance=1e4, tbegin=0, tend=5, min_its=10e4, max_its=10e7):  # General settings for the solver.
+    def __init__(self, tolerance=1e4, tbegin=0, tend=50, min_its=10e4, max_its=10e7):  # General settings for the solver.
         """
         Parameters:
             - min_its, should be divisible by 2.

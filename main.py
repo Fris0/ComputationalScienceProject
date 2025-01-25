@@ -12,14 +12,16 @@
 # - Run this python file in an up-to-date interpreter > 3.10.
 
 import numpy as np
-import physics, solver
+from solver import Solver
+from physics import Rocket
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    la = np.linspace(0, 90, 90)  # Testing angles.
-
-    ax, fig = plt.subplots(1, 1, figsize=(10,12))  # The Figure we plot in all trajectories.
+    la = np.linspace(0, 90, 5)  # Testing angles.
 
     for angle in la:
-        
-        ax[0][0] = 
+        rocket = Rocket(la=angle)
+        solver = Solver()
+        result = solver.solve_rocket2d(rocket)
+        plt.plot(result[0], result[1])
+    plt.show()
