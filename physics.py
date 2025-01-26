@@ -77,7 +77,7 @@ class Rocket():
         self.Mr_a = 131.0      # total propellant mass in Apache after Nike burnout (lbs)
         self.Mp_a = 217.0      # rocket mass after Nike detaches (lbs)
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
-        self.T_n = 42500.0      # thrust of Nike (lbf)
+        self.T_n = T            # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
         self.T_a = 5130.0       # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
@@ -138,9 +138,10 @@ class Rocket():
         # Unpack state
         x, y, vx, vy, m = state
 
-        h = np.sqrt(x**2 + y**2)
+        # Determines the height the rocket is at.
+        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
 
-        if y < 0:
+        if h < 0:
             self.impact = True
 
         if self.impact:
@@ -156,12 +157,11 @@ class Rocket():
             thrust = 0.0
             mdot = 0.0
 
-        # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
-        g_local = self.g * (self.Re / (self.Re + y))**2 if (self.Re + y) > 0 else self.g
+        # Inverse-square law: g(y) = g0 * (Re / (Re + h))^2
+        g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
-        dist = np.sqrt(x**2 + y**2)
-        if dist < 2:
+        if h < 2:
             fa = self.la
         else:
             fa = np.arctan2(vy, vx)
@@ -185,9 +185,17 @@ class Rocket():
         Fx_thrust = thrust * np.cos(fa)
         Fy_thrust = thrust * np.sin(fa)
 
+        # Gravity forces
+        if (x**2 + y**2) > 0:
+            Fx_gravity = x/np.sqrt(x**2 + y**2) * (-m * g_local)
+            Fy_gravity = y/np.sqrt(x**2 + y**2) * (-m * g_local)
+        else:
+            Fx_gravity = 0
+            Fy_gravity = 0
+
         # Net forces
-        Fx_net = Fx_drag + Fx_thrust
-        Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
+        Fx_net = Fx_drag + Fx_thrust + Fx_gravity
+        Fy_net = Fy_drag + Fy_thrust + Fy_gravity
 
         # Accelerations
         ax = Fx_net / m
@@ -208,7 +216,14 @@ class Rocket():
         # Unpack state
         x, y, vx, vy, m = state
 
-        h = np.sqrt(x**2 + y**2)
+        # Determines the height the rocket is at.
+        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+
+        if h < 0:
+            self.impact = True
+
+        if self.impact:
+            return np.array([0, 0, 0, 0, 0])
 
         # Stage 1 Nike Burn and Detach
         if t < self.t_b_n:
@@ -238,7 +253,10 @@ class Rocket():
         g_local = self.g * (self.Re / (self.Re + h)**2) if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
-        fa = np.arctan2(vx, vy)
+        if h < 2:
+            fa = self.la
+        else:
+            fa = np.arctan2(vy, vx)
 
         speed = np.sqrt(vx**2 + vy**2)
         if speed > 1e-12:
@@ -259,9 +277,17 @@ class Rocket():
         Fx_thrust = thrust * np.cos(fa)
         Fy_thrust = thrust * np.sin(fa)
 
+        # Gravity forces
+        if (x**2 + y**2) > 0:
+            Fx_gravity = x/np.sqrt(x**2 + y**2) * (-m * g_local)
+            Fy_gravity = y/np.sqrt(x**2 + y**2) * (-m * g_local)
+        else:
+            Fx_gravity = 0
+            Fy_gravity = 0
+
         # Net forces
-        Fx_net = Fx_drag + Fx_thrust
-        Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
+        Fx_net = Fx_drag + Fx_thrust + Fx_gravity
+        Fy_net = Fy_drag + Fy_thrust + Fy_gravity
 
         # Accelerations
         ax = Fx_net / m

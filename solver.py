@@ -17,8 +17,9 @@ class Solver():
         self.tend = tend
         self.min_its = min_its
         self.max_its = max_its
+        self.rocket_dropped = False
 
-    def solve_singlestep(f, tn, un, h):
+    def solve_singlestep(self, f, tn, un, h):
         """
         Perform one step of the fourth order Runge-Kutta
 
@@ -37,6 +38,11 @@ class Solver():
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
         un1 = un + h/6 * (k1 + 2*k2 + 2*k3 + k4)
+        # print(tn)
+        if (tn > Rocket().t_b_n and not self.rocket_dropped and f == Rocket().Nike_Apache_physics):
+            un1[4] -= (un[4] - Rocket().Mp_a)
+            self.rocket_dropped = True
+            print(un1, tn)
         return un1
 
     def solve_general(self, u_0, f, T, N):
@@ -52,13 +58,13 @@ class Solver():
         Output:
         - (u_n): a matrix (np.array) of size (N+1, d).
         """
-
+        self.rocket_dropped = False
         h = T/N
         d = u_0.shape[0]
         u = np.zeros((N+1, d))
         u[0] = u_0
         for n in range(N):
-            u[n+1] = Solver.solve_singlestep(f, n*h, u[n], h)
+            u[n+1] = self.solve_singlestep(f, n*h, u[n], h)
 
         return u
 
@@ -95,7 +101,7 @@ class Solver():
                   interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
-            result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+            result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
         return np.asarray((np.repeat(result, repeats=2, axis=0)[:-1], result_2))
 
     def solve_rocket2d(self, rocket):
