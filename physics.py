@@ -51,7 +51,7 @@ def rho(h):
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=85):
+                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
@@ -66,7 +66,6 @@ class Rocket():
         self.mass_flow_nike = self.Mr_n / t_b  # Nike Mass flow rate (lbs/sec)
         self.la = np.deg2rad(la)  # launch angle (radians)
         self.Re = 2.09e7        # approx. earth radius in feet
-        self.impact = False     # Boolean telling if rocket has impacted
 
         # Two stage additions
         self.Launcher = 0.25    # Launcher rod of Nike Apache (ft) (data on 21 or 0.25ft)
@@ -76,7 +75,7 @@ class Rocket():
         self.Mr_a = 131.0      # total propellant mass in Apache after Nike burnout (lbs)
         self.Mp_a = 217.0      # rocket mass after Nike detaches (lbs)
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
-        self.T_n = T            # thrust of Nike (lbf)
+        self.T_n = 42500.0      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
         self.T_a = 5130.0       # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
