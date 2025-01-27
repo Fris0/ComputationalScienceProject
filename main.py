@@ -17,7 +17,7 @@ from physics import Rocket
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    la = np.linspace(0, 90, 3)  # Testing angles.
+    la = np.linspace(0, 90, 5)  # Testing angles.
     fig, ax = plt.subplots(1,1, figsize=(16,8))
 
     for angle in la:
@@ -29,11 +29,10 @@ if __name__ == "__main__":
         result = solver.solve_rocket2d(rocket)
 
         # Extracting data.
-        distance = result[0][:, 0].reshape(1, -1)[0]
-        altitude = result[0][:, 1].reshape(1, -1)[0]
+        distance = result[0][:, 0]
+        altitude = result[0][:, 1]
 
-        print(max(distance))
-        print(max(altitude))
+        print(max(distance), max(altitude))
 
         # x-axis
         T = solver.tend - solver.tbegin
