@@ -75,11 +75,12 @@ class Rocket():
         self.Mr_a = 131.0      # total propellant mass in Apache after Nike burnout (lbs)
         self.Mp_a = 217.0      # rocket mass after Nike detaches (lbs)
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
-        self.T_n = 42500.0      # thrust of Nike (lbf)
+        self.T_n = T      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
         self.T_a = 5130.0       # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
         self.mass_flow_apache = self.Mr_a / self.t_b_a  # Apache Mass flow rate (lbs/sec)
+        self.impact = False
 
     def rocket_1d_dynamics(self, t, state):
         """
