@@ -103,6 +103,8 @@ class Solver():
             N *= 2
             result = result_2
             result_2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+            mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
+
         return np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
 
     def solve_rocket2d(self, rocket):
@@ -132,7 +134,8 @@ class Solver():
         N = int(self.min_its)  # Steps
 
         result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
-        result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+        self.rocket_dropped = False
+        result_2 = self.solve_general(args, Rocket.rocket_2d_dynamics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
@@ -141,7 +144,9 @@ class Solver():
             N *= 2
             result = result_2
             self.rocket_dropped = False
-            result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
+            result_2 = self.solve_general(args, Rocket.rocket_2d_dynamics, T, N)
+            mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
+
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
         return np.asarray([[(item[0], item[1],
                              np.sqrt(item[2]**2 + item[3]**2), item[4])
