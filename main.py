@@ -21,29 +21,40 @@ import matplotlib.pyplot as plt
 
 def plot_while_processing():
     la = np.linspace(0, 90, 5)  # Testing angles.
-    fig, ax = plt.subplots(1,1, figsize=(16,8))
+    fig, ax = plt.subplots(1,4, figsize=(16,8))
     for angle in la:
         # Resetting / Starting simulation.
-        solver = Solver(tend=400)
+        solver = Solver(tend=40)
 
         # Simulating with new angle.
-        result = solver.solve_rocket2d(Rocket(la=angle))
+        result = solver.solve_rocketNike(Rocket(la=angle))
 
         # Extracting data.
         distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
         altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
+        velocity = result[0][:, 2].reshape(1, -1)[0]
+        mass = result[0][:, 3].reshape(1, -1)[0]
 
         # x-axis
         T = solver.tend - solver.tbegin
 
         # Plotting the different angles for analysis
-        ax.plot(distance, altitude, label=str(angle))
-        ax.set_xlabel("Distance")
-        ax.set_ylabel("Altitude")
+        ax[0].plot(distance, altitude, label=str(angle))
+        ax[0].set_xlabel("Distance (ft)")
+        ax[0].set_ylabel("Altitude (ft)")
+        ax[1].plot(np.linspace(solver.tbegin, solver.tend, len(mass)), mass, label=str(angle))
+        ax[1].set_xlabel("Time (s)")
+        ax[1].set_ylabel("Mass (lbs)")
+        ax[2].plot(np.linspace(solver.tbegin, solver.tend, len(mass)), velocity, label=str(angle))
+        ax[2].set_xlabel("Time (s)")
+        ax[2].set_ylabel("Velocity (ft/s)")
+        ax[3].plot(velocity, altitude, label=str(angle))
+        ax[3].set_xlabel("Velocity (ft/s)")
+        ax[3].set_ylabel("Altitude (ft)")
 
-    ax.set_ylim([-1, None])
-    ax.set_xlim([-1, None])
-    ax.legend()
+    ax[0].set_ylim([-1, None])
+    ax[0].set_xlim([-1, None])
+    ax[0].legend()
     plt.show()
 
 def obtain_data_from_simulation():
@@ -60,7 +71,7 @@ def obtain_data_from_simulation():
             # Extracting data.
             distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
             altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
-            
+
             # Writing to file
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
 
@@ -89,4 +100,3 @@ if __name__ == "__main__":
         obtain_data_from_simulation()
     else:
         read_data_and_plot()
-

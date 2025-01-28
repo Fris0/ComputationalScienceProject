@@ -48,7 +48,6 @@ def rho(h):
 
     return 0.0019 * rho_metric
 
-
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
                  T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90):
@@ -77,10 +76,12 @@ class Rocket():
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
         self.T_n = T      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
-        self.T_a = 5130.0       # Thrust of Apache (lbf)
+        self.T_a = 5130.0 * g      # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
         self.mass_flow_apache = self.Mr_a / self.t_b_a  # Apache Mass flow rate (lbs/sec)
         self.impact = False
+
+        self.prev_fa = self.la
 
     def rocket_1d_dynamics(self, t, state):
         """
@@ -138,8 +139,7 @@ class Rocket():
         x, y, vx, vy, m = state
 
         # Determines the height the rocket is at.
-        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
-        #h = np.sqrt(x**2 + y**2)
+        h = np.sqrt(x**2 + y**2)
 
         if h < 0:
             self.impact = True
@@ -185,20 +185,9 @@ class Rocket():
         Fx_thrust = thrust * np.cos(fa)
         Fy_thrust = thrust * np.sin(fa)
 
-        # Gravity forces
-        if (x**2 + y**2) > 0:
-            r = np.sqrt(x**2 + y**2)
-            Fx_gravity = (x / r) * (-m * g_local)
-            Fy_gravity = (y / r) * (-m * g_local)
-        else:
-            Fx_gravity = 0
-            Fy_gravity = 0
-
         # Net forces
-        #Fx_net = Fx_drag + Fx_thrust
-        #Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
-        Fx_net = Fx_drag + Fx_thrust + Fx_gravity
-        Fy_net = Fy_drag + Fy_thrust + Fy_gravity
+        Fx_net = Fx_drag + Fx_thrust
+        Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
 
         # Accelerations
         ax = Fx_net / m
@@ -221,6 +210,7 @@ class Rocket():
 
         # Determines the height the rocket is at.
         h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+        #h = y
 
         if h < 0:
             self.impact = True
@@ -259,7 +249,14 @@ class Rocket():
         if h < 2:
             fa = self.la
         else:
+            # fa = self.la
             fa = np.arctan2(vy, vx)
+            print(np.rad2deg(fa))
+
+        # if (np.abs(np.rad2deg(fa) - np.rad2deg(self.prev_fa)) > 0.01):
+        #     print(t, self.prev_fa, fa)
+        #     self.prev_fa = fa
+
 
         speed = np.sqrt(vx**2 + vy**2)
         if speed > 1e-12:
@@ -282,19 +279,26 @@ class Rocket():
 
         # Gravity forces
         if (x**2 + y**2) > 0:
-            Fx_gravity = x/np.sqrt(x**2 + y**2) * (-m * g_local)
-            Fy_gravity = y/np.sqrt(x**2 + y**2) * (-m * g_local)
+            r = np.sqrt(x**2 + (y + self.Re)**2)
+            Fx_gravity = (x / r) * (-m * g_local)
+            Fy_gravity = ((y + self.Re) / r) * (-m * g_local)
         else:
             Fx_gravity = 0
             Fy_gravity = 0
 
         # Net forces
+        #Fx_net = Fx_drag + Fx_thrust
+        #Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
         Fx_net = Fx_drag + Fx_thrust + Fx_gravity
         Fy_net = Fy_drag + Fy_thrust + Fy_gravity
 
-        # Accelerations
+        # Acceleration
         ax = Fx_net / m
         ay = Fy_net / m
+
+        # if t > 30:
+        #     print([vx, vy, ax, ay, -mdot])
+        #     print(Fx_net, Fy_net, Fy_drag, Fy_thrust, (-m * g_local))
 
         return np.array([vx, vy, ax, ay, -mdot])
 
