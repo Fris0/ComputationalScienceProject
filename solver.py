@@ -120,6 +120,37 @@ class Solver():
             - None
         """
 
+        def x_y_to_a_d(x, y):
+            """
+                b
+            start--__
+            |        x_rocketpos
+            |        /
+            | r     /
+            |      / a
+            |     /
+            |  $ /
+            earth
+            We can calculate a, b.
+            After that we use the cosine rule to calculate $ (alpha).
+            https://en.wikipedia.org/wiki/Law_of_cosines#Use_in_solving_triangles
+            Then we calculate distance using (2*pi)/(alpha)*r
+            """
+            r = Rocket().Re
+            altitude = np.sqrt((x-0)**2 + (y+r)**2) - r
+            a = altitude + r
+            b = np.sqrt((x-0)**2 + (y-0)**2)
+            earthangle = np.arccos((r**2 + a**2 - b**2)/(2*a*r))
+            if (np.abs(earthangle) < 0.001 or np.isnan(earthangle)): # For small angle it doesn't really matter
+                earthintersectionpos = r/(r+altitude)
+                # print(earthintersectionpos)
+                return (np.sqrt((x*earthintersectionpos-0)**2
+                                + ((y+r)*earthintersectionpos-r)**2),
+                                altitude)
+            distance = (2*np.pi)/(earthangle)*r
+            # print(x,y, a, b, r, distance, earthangle)
+            return distance, altitude
+
         # Starting conditions
         mass = rocket.Mr
         posx = 0
@@ -148,7 +179,9 @@ class Solver():
             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
-        return np.asarray([[(item[0], item[1],
+
+        return np.asarray([[(x_y_to_a_d(item[0],item[1])[0],
+                             x_y_to_a_d(item[0],item[1])[1],
                              np.sqrt(item[2]**2 + item[3]**2), item[4])
                              for item in result]
                              for result in return_list])
