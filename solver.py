@@ -34,7 +34,7 @@ class Solver():
             the Runge-Kutta performed
         """
 
-        k1 = (f(tn, un))
+        k1 = f(tn, un)
         k2 = f(tn + h/2, un + k1*h/2)
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
@@ -93,7 +93,7 @@ class Solver():
         N = int(self.min_its)  # Steps
 
         result = self.solve_general(args, rocket.rocket_1d_dynamics, T, N//2)
-        result_2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+        result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
 
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
@@ -102,7 +102,7 @@ class Solver():
                   interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
-            result_2 = Solver.solve_general(args, rocket.rocket_1d_dynamics, T, N)
+            result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
@@ -133,9 +133,9 @@ class Solver():
         T = self.tend-self.tbegin  # Total run time.
         N = int(self.min_its)  # Steps
 
-        result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
+        result = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N//2)
         self.rocket_dropped = False
-        result_2 = self.solve_general(args, Rocket.rocket_2d_dynamics, T, N)
+        result_2 = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
@@ -144,7 +144,7 @@ class Solver():
             N *= 2
             result = result_2
             self.rocket_dropped = False
-            result_2 = self.solve_general(args, Rocket.rocket_2d_dynamics, T, N)
+            result_2 = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N)
             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
