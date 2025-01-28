@@ -52,17 +52,21 @@ def obtain_data_from_simulation():
         for angle in la:
             # Resetting / Starting simulation.
             solver = Solver(tend=400)
-    
+
             # Simulating with new angle.
             result = solver.solve_rocket2d(Rocket(la=angle))
-    
+
             # Extracting data.
             distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
             altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
+<<<<<<< HEAD
             
             # Writing to file
+=======
+
+>>>>>>> 31c563eb2b6d20ccf3cb5a2167ef4389ee078408
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
-        
+
 def read_data_and_plot():
     with open("data.txt", "r") as f:
         while True:
@@ -89,4 +93,3 @@ if __name__ == "__main__":
     else:
         read_data_and_plot()
 
-        
