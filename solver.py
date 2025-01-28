@@ -39,9 +39,9 @@ class Solver():
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
         un1 = un + h/6 * (k1 + 2*k2 + 2*k3 + k4)
-        if (tn > Rocket().t_b_n and not self.rocket_dropped and f == Rocket().Nike_Apache_physics):
-            un1[4] -= (un[4] - Rocket().Mp_a)
-            self.rocket_dropped = True
+        #if (tn > Rocket().t_b_n and not self.rocket_dropped and f == Rocket().Nike_Apache_physics):
+        #    un1[4] -= (un[4] - Rocket().Mp_a)
+        #    self.rocket_dropped = True
         return un1
 
     def solve_general(self, u_0, f, T, N):
@@ -57,7 +57,7 @@ class Solver():
         Output:
         - (u_n): a matrix (np.array) of size (N+1, d).
         """
-        self.rocket_dropped = False
+        #self.rocket_dropped = False
         h = T/N
         d = u_0.shape[0]
         u = np.zeros((N, d))

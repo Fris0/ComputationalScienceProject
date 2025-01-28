@@ -138,7 +138,8 @@ class Rocket():
         x, y, vx, vy, m = state
 
         # Determines the height the rocket is at.
-        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+        #h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+        h = np.sqrt(x**2 + y**2)
 
         if h < 0:
             self.impact = True
