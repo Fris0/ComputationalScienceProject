@@ -60,6 +60,7 @@ def obtain_data_from_simulation():
             distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
             altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
             
+            # Writing to file
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
         
 def read_data_and_plot():
