@@ -18,7 +18,7 @@ class Solver():
         self.tend = tend
         self.min_its = min_its
         self.max_its = max_its
-        self.rocket_dropped = False
+        #self.rocket_dropped = False
 
     def solve_singlestep(self, f, tn, un, h):
         """
@@ -164,9 +164,9 @@ class Solver():
         T = self.tend-self.tbegin  # Total run time.
         N = int(self.min_its)  # Steps
 
-        result = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N//2)
-        self.rocket_dropped = False
-        result_2 = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N)
+        result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
+        rocket.impact = False
+        result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
@@ -174,8 +174,8 @@ class Solver():
                   interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
-            self.rocket_dropped = False
-            result_2 = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N)
+            rocket.impact = False
+            result_2 = self.solve_general(args, rocket.rocket_2d_dynamics, T, N)
             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
@@ -187,28 +187,28 @@ class Solver():
                              for result in return_list])
 
 
-if __name__ == "__main__":
-    rocket = Rocket(la=85)
-    solver = Solver(tend=500)
-    result = solver.solve_rocket2d(rocket)
-
-    distance = result[0][:, 0].reshape(1, -1)[0]
-    altitude = result[0][:, 1].reshape(1, -1)[0]
-    velocity = result[0][:, 2].reshape(1, -1)[0]
-    mass = result[0][:, 3].reshape(1, -1)[0]
-
-    T = solver.tend - solver.tbegin
-    x = np.linspace(0, T, len(altitude) - 1)
-
-    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
-    ax[0][0].plot(x, altitude[:-1], label="Altitude")
-    ax[0][0].plot(x, velocity[:-1], label="Velocity")
-    ax[0][1].plot(x, mass[:-1], label="Mass")
-    ax[1][0].plot(velocity, altitude)
-    ax[1][0].set_xlabel("Velocity")
-    ax[1][0].set_ylabel("Altitude")
-    ax[0][0].legend()
-    ax[1][1].plot(distance, altitude)
-    ax[1][1].set_xlabel("distance")
-    ax[1][1].set_ylabel("altitude")
-    plt.show()
+#if __name__ == "__main__":
+#    rocket = Rocket(la=85)
+#    solver = Solver(tend=500)
+#    result = solver.solve_rocket2d(rocket)
+#
+#    distance = result[0][:, 0].reshape(1, -1)[0]
+#    altitude = result[0][:, 1].reshape(1, -1)[0]
+#    velocity = result[0][:, 2].reshape(1, -1)[0]
+#    mass = result[0][:, 3].reshape(1, -1)[0]
+#
+#    T = solver.tend - solver.tbegin
+#    x = np.linspace(0, T, len(altitude) - 1)
+#
+#    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
+#    ax[0][0].plot(x, altitude[:-1], label="Altitude")
+#    ax[0][0].plot(x, velocity[:-1], label="Velocity")
+#    ax[0][1].plot(x, mass[:-1], label="Mass")
+#    ax[1][0].plot(velocity, altitude)
+#    ax[1][0].set_xlabel("Velocity")
+#    ax[1][0].set_ylabel("Altitude")
+#    ax[0][0].legend()
+#    ax[1][1].plot(distance, altitude)
+#    ax[1][1].set_xlabel("distance")
+#    ax[1][1].set_ylabel("altitude")
+#    plt.show()
