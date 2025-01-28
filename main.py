@@ -17,7 +17,7 @@ from physics import Rocket
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    la = np.linspace(0, 90, 20)  # Testing angles.
+    la = np.linspace(0, 90, 3)  # Testing angles.
     fig, ax = plt.subplots(1,1, figsize=(16,8))
 
     for angle in la:

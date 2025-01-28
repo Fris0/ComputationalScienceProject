@@ -142,7 +142,7 @@ class Rocket():
 
         if h < 0:
             self.impact = True
-
+        
         if self.impact:
             return np.array([0, 0, 0, 0, 0])
 
@@ -160,12 +160,14 @@ class Rocket():
         g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
-        if h < 2:
+        dist = np.sqrt(x**2 + y**2)
+        if dist < 2:
             fa = self.la
         else:
             fa = np.arctan2(vy, vx)
 
         speed = np.sqrt(vx**2 + vy**2)
+
         if speed > 1e-12:
             vx_hat = vx / speed
             vy_hat = vy / speed
@@ -174,7 +176,7 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        D = 0.5 * rho(h) * fps_to_Cd(speed) * self.A * speed**2
+        D = 0.5 * rho(dist) * fps_to_Cd(speed) * self.A * speed**2
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
@@ -193,6 +195,8 @@ class Rocket():
             Fy_gravity = 0
 
         # Net forces
+        #Fx_net = Fx_drag + Fx_thrust
+        #Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
         Fx_net = Fx_drag + Fx_thrust + Fx_gravity
         Fy_net = Fy_drag + Fy_thrust + Fy_gravity
 
