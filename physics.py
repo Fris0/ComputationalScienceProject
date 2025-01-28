@@ -186,17 +186,19 @@ class Rocket():
         Fy_thrust = thrust * np.sin(fa)
 
         # Gravity forces
-        if (x**2 + y**2) > 0:
-            r = np.sqrt(x**2 + y**2)
-            Fx_gravity = (x / r) * (-m * g_local.g)
-            Fy_gravity = (y / r) * (-m * g_local.g)
-        else:
-            Fx_gravity = 0
-            Fy_gravity = 0
+        #if (x**2 + y**2) > 0:
+        #    r = np.sqrt(x**2 + y**2)
+        #    Fx_gravity = (x / r) * (-m * g_local.g)
+        #    Fy_gravity = (y / r) * (-m * g_local.g)
+        #else:
+        #    Fx_gravity = 0
+        #    Fy_gravity = 0
 
         # Net forces
-        Fx_net = Fx_drag + Fx_thrust + Fx_gravity
-        Fy_net = Fy_drag + Fy_thrust + Fy_gravity
+        Fx_net = Fx_drag + Fx_thrust
+        Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
+        #Fx_net = Fx_drag + Fx_thrust + Fx_gravity
+        #Fy_net = Fy_drag + Fy_thrust + Fy_gravity
 
         # Accelerations
         ax = Fx_net / m

@@ -20,7 +20,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 def plot_while_processing():
-    la = np.linspace(0, 90, 10)  # Testing angles.
+    la = np.linspace(0, 90, 3)  # Testing angles.
     fig, ax = plt.subplots(1,1, figsize=(16,8))
     for angle in la:
         # Resetting / Starting simulation.
@@ -59,12 +59,8 @@ def obtain_data_from_simulation():
             # Extracting data.
             distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
             altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
-<<<<<<< HEAD
             
             # Writing to file
-=======
-
->>>>>>> 31c563eb2b6d20ccf3cb5a2167ef4389ee078408
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
 
 def read_data_and_plot():
