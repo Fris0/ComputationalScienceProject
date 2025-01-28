@@ -138,11 +138,12 @@ class Rocket():
         x, y, vx, vy, m = state
 
         # Determines the height the rocket is at.
-        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+        #h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+        h = np.sqrt(x**2 + y**2)
 
         if h < 0:
             self.impact = True
-        
+
         if self.impact:
             return np.array([0, 0, 0, 0, 0])
 
@@ -160,14 +161,12 @@ class Rocket():
         g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
-        dist = np.sqrt(x**2 + y**2)
-        if dist < 2:
+        if h < 2:
             fa = self.la
         else:
             fa = np.arctan2(vy, vx)
 
         speed = np.sqrt(vx**2 + vy**2)
-
         if speed > 1e-12:
             vx_hat = vx / speed
             vy_hat = vy / speed
@@ -176,7 +175,7 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        D = 0.5 * rho(dist) * fps_to_Cd(speed) * self.A * speed**2
+        D = 0.5 * rho(h) * fps_to_Cd(speed) * self.A * speed**2
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
@@ -187,18 +186,17 @@ class Rocket():
         Fy_thrust = thrust * np.sin(fa)
 
         # Gravity forces
-        if (x**2 + y**2) > 0:
-            Fx_gravity = x/np.sqrt(x**2 + y**2) * (-m * g_local)
-            Fy_gravity = y/np.sqrt(x**2 + y**2) * (-m * g_local)
-        else:
-            Fx_gravity = 0
-            Fy_gravity = 0
+        #if (x**2 + y**2) > 0:
+        #    r = np.sqrt(x**2 + y**2)
+        #    Fx_gravity = (x / r) * (-m * g_local.g)
+        #    Fy_gravity = (y / r) * (-m * g_local.g)
+        #else:
+        #    Fx_gravity = 0
+        #    Fy_gravity = 0
 
         # Net forces
-        #Fx_net = Fx_drag + Fx_thrust
-        #Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
-        Fx_net = Fx_drag + Fx_thrust + Fx_gravity
-        Fy_net = Fy_drag + Fy_thrust + Fy_gravity
+        Fx_net = Fx_drag + Fx_thrust
+        Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
 
         # Accelerations
         ax = Fx_net / m

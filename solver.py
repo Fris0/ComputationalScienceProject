@@ -18,7 +18,7 @@ class Solver():
         self.tend = tend
         self.min_its = min_its
         self.max_its = max_its
-        self.rocket_dropped = False
+        #self.rocket_dropped = False
 
     def solve_singlestep(self, f, tn, un, h):
         """
@@ -39,9 +39,9 @@ class Solver():
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
         un1 = un + h/6 * (k1 + 2*k2 + 2*k3 + k4)
-        if (tn > Rocket().t_b_n and not self.rocket_dropped and f == Rocket().Nike_Apache_physics):
-            un1[4] -= (un[4] - Rocket().Mp_a)
-            self.rocket_dropped = True
+        #if (tn > Rocket().t_b_n and not self.rocket_dropped and f == Rocket().Nike_Apache_physics):
+        #    un1[4] -= (un[4] - Rocket().Mp_a)
+        #    self.rocket_dropped = True
         return un1
 
     def solve_general(self, u_0, f, T, N):
@@ -57,7 +57,7 @@ class Solver():
         Output:
         - (u_n): a matrix (np.array) of size (N+1, d).
         """
-        self.rocket_dropped = False
+        #self.rocket_dropped = False
         h = T/N
         d = u_0.shape[0]
         u = np.zeros((N, d))
@@ -133,9 +133,8 @@ class Solver():
         T = self.tend-self.tbegin  # Total run time.
         N = int(self.min_its)  # Steps
 
-        result = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N//2)
-        self.rocket_dropped = False
-        result_2 = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N)
+        result = self.solve_general(args, rocket.rocket_2d_dynamics, T, N//2)
+        result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).rocket_2d_dynamics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
@@ -143,8 +142,7 @@ class Solver():
                   interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
-            self.rocket_dropped = False
-            result_2 = self.solve_general(args, Rocket().rocket_2d_dynamics, T, N)
+            result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).rocket_2d_dynamics, T, N)
             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
@@ -154,28 +152,28 @@ class Solver():
                              for result in return_list])
 
 
-if __name__ == "__main__":
-    rocket = Rocket(la=85)
-    solver = Solver(tend=500)
-    result = solver.solve_rocket2d(rocket)
-
-    distance = result[0][:, 0].reshape(1, -1)[0]
-    altitude = result[0][:, 1].reshape(1, -1)[0]
-    velocity = result[0][:, 2].reshape(1, -1)[0]
-    mass = result[0][:, 3].reshape(1, -1)[0]
-
-    T = solver.tend - solver.tbegin
-    x = np.linspace(0, T, len(altitude) - 1)
-
-    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
-    ax[0][0].plot(x, altitude[:-1], label="Altitude")
-    ax[0][0].plot(x, velocity[:-1], label="Velocity")
-    ax[0][1].plot(x, mass[:-1], label="Mass")
-    ax[1][0].plot(velocity, altitude)
-    ax[1][0].set_xlabel("Velocity")
-    ax[1][0].set_ylabel("Altitude")
-    ax[0][0].legend()
-    ax[1][1].plot(distance, altitude)
-    ax[1][1].set_xlabel("distance")
-    ax[1][1].set_ylabel("altitude")
-    plt.show()
+#if __name__ == "__main__":
+#    rocket = Rocket(la=85)
+#    solver = Solver(tend=500)
+#    result = solver.solve_rocket2d(rocket)
+#
+#    distance = result[0][:, 0].reshape(1, -1)[0]
+#    altitude = result[0][:, 1].reshape(1, -1)[0]
+#    velocity = result[0][:, 2].reshape(1, -1)[0]
+#    mass = result[0][:, 3].reshape(1, -1)[0]
+#
+#    T = solver.tend - solver.tbegin
+#    x = np.linspace(0, T, len(altitude) - 1)
+#
+#    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
+#    ax[0][0].plot(x, altitude[:-1], label="Altitude")
+#    ax[0][0].plot(x, velocity[:-1], label="Velocity")
+#    ax[0][1].plot(x, mass[:-1], label="Mass")
+#    ax[1][0].plot(velocity, altitude)
+#    ax[1][0].set_xlabel("Velocity")
+#    ax[1][0].set_ylabel("Altitude")
+#    ax[0][0].legend()
+#    ax[1][1].plot(distance, altitude)
+#    ax[1][1].set_xlabel("distance")
+#    ax[1][1].set_ylabel("altitude")
+#    plt.show()
