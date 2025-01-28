@@ -20,7 +20,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 def plot_while_processing():
-    la = np.linspace(0, 90, 3)  # Testing angles.
+    la = np.linspace(0, 90, 5)  # Testing angles.
     fig, ax = plt.subplots(1,1, figsize=(16,8))
     for angle in la:
         # Resetting / Starting simulation.
@@ -41,7 +41,8 @@ def plot_while_processing():
         ax.set_xlabel("Distance")
         ax.set_ylabel("Altitude")
 
-    ax.set_ylim([0, None])
+    ax.set_ylim([-1, None])
+    ax.set_xlim([-1, None])
     ax.legend()
     plt.show()
 
