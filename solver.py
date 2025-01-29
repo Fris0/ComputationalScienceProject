@@ -194,7 +194,7 @@ class Solver():
                                     + ((y+r)*earthintersectionpos-r)**2),
                                     altitude)
                 distance = earthangle*r
-                print(f"x: {x}, y: {y}, a: {a}, b: {b}, r: {r}, distance: {distance}, altitude: {altitude}, earthangle: {earthangle}")
+                # print(f"x: {x}, y: {y}, a: {a}, b: {b}, r: {r}, distance: {distance}, altitude: {altitude}, earthangle: {earthangle}")
                 return distance, altitude
 
             # Starting conditions
