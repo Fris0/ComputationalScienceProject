@@ -81,6 +81,7 @@ Cds_nike = [
 ]
 
 Machs2 = [
+    0.00,
     1.00,
     1.25,
     1.50,
@@ -102,6 +103,7 @@ Machs2 = [
 ]
 
 Cds_apache_coasting = [
+    0.384,
     0.930,
     0.841,
     0.785,
@@ -123,6 +125,7 @@ Cds_apache_coasting = [
 ]
 
 Cds_apache_thrusting = [
+    0.364,
     0.780,
     0.707,
     0.665,
