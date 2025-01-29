@@ -84,7 +84,7 @@ def obtain_thrust_data_from_simulation():
         # Resetting / Starting simulation.
         solver = Solver(tend=1000)
         # Simulating with new angle.
-        result = solver.solve_rocketNike(Rocket(T = thrust * 32.174))
+        result = solver.solve_rocketNike(Rocket(T_a=thrust*32.174, la=85))
         # Extracting data.
         distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
         altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
@@ -98,6 +98,7 @@ def obtain_thrust_data_from_simulation():
 
 
 def plot_thrust_data_from_simulation():
+    print("Hi")
     df = pd.read_csv("thrust_data.csv", low_memory=False)
     df["run"] = pd.to_numeric(df["run"], errors="coerce")
     df["distance"] = pd.to_numeric(df["distance"], errors="coerce")
@@ -112,6 +113,7 @@ def plot_thrust_data_from_simulation():
     fig, ax = plt.subplots(1,4, figsize=(16,8))
 
     for run in range(int(start), int(end) + 1):
+        print("HIii")
 
         df_run = df[df["run"] == run]
 
@@ -120,6 +122,7 @@ def plot_thrust_data_from_simulation():
         altitude = df_run["altitude"].to_numpy(dtype=np.float64)
         velocity = df_run["velocity"].to_numpy(dtype=np.float64)
         mass = df_run["mass"].to_numpy(dtype=np.float64)
+        print(np.max(distance))
 
         # Plotting the different angles for analysis
         ax[0].plot(distance, altitude)
@@ -137,9 +140,11 @@ def plot_thrust_data_from_simulation():
 
     ax[0].set_ylim([-1, None])
     ax[0].set_xlim([-1, None])
+    fig.show()
 
 def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N):
-    for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
+    # for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
+    for launchangle in [51, 52, 53, 54, 55]:
         # Resetting / Starting simulation.
         solver = Solver(tend=1000)
 
@@ -152,12 +157,18 @@ def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N)
         velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
         mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
         time = np.linspace(solver.tbegin, solver.tend, len(distance))
-        plt.plot(distance, altitude)
+        plt.plot(distance, altitude, label= str(launchangle) + str('°'))
 
         # Writing to file
         d = {'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
         data = pd.DataFrame(data=d)
         data.to_csv("Modeldata/AngleData/LAis" + str(launchangle).replace('.', '_') + ".csv")
+    plt.xlim([4275000, 4303500])
+    plt.ylim([0,10000])
+    plt.xlabel("Distance (ft)")
+    plt.ylabel("Altitude (ft)")
+    plt.legend()
+    plt.savefig("Modeldata/AngleData/bestangleplot3.png", dpi=600)
     plt.show()
 
 def obtain_optimal_angle():
@@ -166,14 +177,19 @@ def obtain_optimal_angle():
     bestangle = 0
 
     for i, file in enumerate(files):
+        if ".png" in file:
+            continue
         data = pd.read_csv(join("Modeldata/AngleData", file))
         distance = data['distance']
+        # print(distance)
         curmax = np.max(distance)
+        # print(curmax)
         if mymax < curmax:
+            print(curmax, mymax, file, np.argmax(distance))
             mymax = curmax
             bestangle = i
-    print(bestangle, file)
-    curangle = int(str(file).removeprefix("LAis").removesuffix(".csv"))
+    print(bestangle, file, mymax)
+    curangle = float(str(file).removeprefix("LAis").removesuffix(".csv"))
     bestangle = 0
     for launchangle in np.linspace(curangle-1,curangle+1, 201):
         # Resetting / Starting simulation.

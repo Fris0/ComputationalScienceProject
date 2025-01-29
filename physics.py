@@ -54,7 +54,8 @@ def rho(h):
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90):
+                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90,
+                 T_a =5130.0*32.174):
 
         self.g = g              # gravitational acceleration (ft/s^2)
         self.rho = rho          # air density (slug/ft^3)
