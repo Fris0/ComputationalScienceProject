@@ -18,6 +18,8 @@ from solver import Solver
 from physics import Rocket
 import cv2
 import matplotlib.pyplot as plt
+from os import listdir
+from os.path import isfile, join
 
 def plot_while_processing():
     la = np.linspace(0, 90, 5)  # Testing angles.
@@ -139,7 +141,7 @@ def plot_thrust_data_from_simulation():
 def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N):
     for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
         # Resetting / Starting simulation.
-        solver = Solver(tend=400)
+        solver = Solver(tend=1000)
 
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(la=launchangle))
@@ -155,8 +157,48 @@ def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N)
         # Writing to file
         d = {'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
         data = pd.DataFrame(data=d)
-        data.to_csv("Modeldata/AngleData/LAis" + str(int(launchangle)) + ".csv")
+        data.to_csv("Modeldata/AngleData/LAis" + str(launchangle).replace('.', '_') + ".csv")
     plt.show()
+
+def obtain_optimal_angle():
+    files = [f for f in listdir("Modeldata/AngleData") if isfile(join("Modeldata/AngleData", f))]
+    mymax = 0
+    bestangle = 0
+
+    for i, file in enumerate(files):
+        data = pd.read_csv(join("Modeldata/AngleData", file))
+        distance = data['distance']
+        curmax = np.max(distance)
+        if mymax < curmax:
+            mymax = curmax
+            bestangle = i
+    print(bestangle, file)
+    curangle = int(str(file).removeprefix("LAis").removesuffix(".csv"))
+    bestangle = 0
+    for launchangle in np.linspace(curangle-1,curangle+1, 201):
+        # Resetting / Starting simulation.
+        solver = Solver(tend=1000)
+
+        # Simulating with new angle.
+        result = solver.solve_rocketNike(Rocket(la=launchangle))
+
+        # Extracting data.
+        distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
+        altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
+        velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
+        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
+        time = np.linspace(solver.tbegin, solver.tend, len(distance))
+
+        if mymax < np.max(distance):
+            mymax = np.max(distance)
+            bestangle = launchangle
+            print(bestangle)
+
+        # Writing to file
+        d = {'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
+        data = pd.DataFrame(data=d)
+        data.to_csv("Modeldata/AngleData/LAis" + str(launchangle).replace('.', '_') + ".csv")
+    print(bestangle)
 
 def read_data_and_plot():
     with open("data.txt", "r") as f:
@@ -174,8 +216,8 @@ if __name__ == "__main__":
     option = None
     try:
         option = int(sys.argv[1])
-        startlaunch = int(sys.argv[2])
-        endlaunch = int(sys.argv[3])
+        startlaunch = float(sys.argv[2])
+        endlaunch = float(sys.argv[3])
         N = int(sys.argv[4])
     except:
         print(f"No option given {option}.")
@@ -188,6 +230,8 @@ if __name__ == "__main__":
         obtain_thrust_data_from_simulation()
     elif option == 4:
         obtain_data_from_launchangle_simulation(startlaunch, endlaunch, N)
+    elif option == 5:
+        obtain_optimal_angle()
     else:
         plot_thrust_data_from_simulation()
 
