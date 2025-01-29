@@ -208,7 +208,12 @@ class Solver():
         def changedmax(arr1, arr2, arr3):
             mymax = 0
             for i, item in enumerate(arr1):
-                if arr2[i][2] < 1e-10 or arr2[i][3] < 1e-10 or arr3[i][2] < 1e-10 or arr3[i][3] < 1e-10:
+                if (arr2[i][2] < 1e-10
+                    or arr2[i][3] < 1e-10
+                    or arr3[i][2] < 1e-10
+                    or arr3[i][3] < 1e-10
+                    or np.abs(arr3[i][4] - 217) < 1e-10
+                    or np.abs(arr2[i][4] - 217) < 1e-10):
                     continue
                 if mymax < np.max(item):
                     mymax = np.max(item)
