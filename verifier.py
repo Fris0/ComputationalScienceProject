@@ -165,7 +165,8 @@ if __name__ == "__main__":
     print(np.shape(sol))
     modeldata = np.transpose(sol, [0, 2, 1])
     # print(np.transpose(sol, [0, 2, 1]).shape)
-    plotdata = ((modeldata[0][2], np.sqrt(modeldata[0][1]**2 + modeldata[0][0]**2)), (modeldata[1][2], np.sqrt(modeldata[1][1]**2 + modeldata[1][0]**2)))
+    plotdata = ((modeldata[0][2], modeldata[0][1]), (modeldata[1][2], modeldata[1][1]))
+    # plotdata = ((modeldata[0][2], np.sqrt(modeldata[0][1]**2 + modeldata[0][0]**2)), (modeldata[1][2], np.sqrt(modeldata[1][1]**2 + modeldata[1][0]**2)))
     # print(np.shape(modeldata))
     verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
                         sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
