@@ -14,6 +14,10 @@ def rho(h):
     returns: rho in slug/ft^3
     """
 
+    if (h > 580000):
+        # If height gets too high, the density is almost zero
+        # But for stability issues we need to return 0
+        return 0
     R = 8.3144598       # Universal gas constant (N*m/(mol*K))
     g_0 = 9.80665       # gravitational accelaration (m/s^2)
     M = 0.0289644       # molar mass of Earth's air (kg/mol)
