@@ -253,13 +253,7 @@ class Rocket():
         if h < 2:
             fa = self.la
         else:
-            # fa = self.la
             fa = np.arctan2(vy, vx)
-            print(np.rad2deg(fa))
-
-        # if (np.abs(np.rad2deg(fa) - np.rad2deg(self.prev_fa)) > 0.01):
-        #     print(t, self.prev_fa, fa)
-        #     self.prev_fa = fa
 
 
         speed = np.sqrt(vx**2 + vy**2)
@@ -282,7 +276,7 @@ class Rocket():
         Fy_thrust = thrust * np.sin(fa)
 
         # Gravity forces
-        if (x**2 + y**2) > 0:
+        if (x**2 + (y + self.Re)**2) > 0:
             r = np.sqrt(x**2 + (y + self.Re)**2)
             Fx_gravity = (x / r) * (-m * g_local)
             Fy_gravity = ((y + self.Re) / r) * (-m * g_local)
@@ -291,8 +285,6 @@ class Rocket():
             Fy_gravity = 0
 
         # Net forces
-        #Fx_net = Fx_drag + Fx_thrust
-        #Fy_net = Fy_drag + Fy_thrust + (-m * g_local)
         Fx_net = Fx_drag + Fx_thrust + Fx_gravity
         Fy_net = Fy_drag + Fy_thrust + Fy_gravity
 
