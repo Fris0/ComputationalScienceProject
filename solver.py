@@ -224,13 +224,13 @@ class Solver():
         result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
-#         while (mymax >= self.eps and 2 * N < self.max_its):
-#             print(f"Desired tolerance not reached, increasing number of \
-#                 interpolation points to {N} and current maximum error is {mymax}")
-#             N *= 2
-#             result = result_2
-#             result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
-#             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
+        while (mymax >= self.eps and 2 * N < self.max_its):
+            print(f"Desired tolerance not reached, increasing number of \
+                interpolation points to {N} and current maximum error is {mymax}")
+            N *= 2
+            result = result_2
+            result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
+            mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
 
