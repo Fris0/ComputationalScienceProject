@@ -21,6 +21,7 @@ class Solver():
         self.rocket_dropped = False
         self.Nike = False
 
+    
     def solve_singlestep(self, f, tn, un, h):
         """
         Perform one step of the fourth order Runge-Kutta
@@ -36,6 +37,8 @@ class Solver():
         """
 
         k1 = f(tn, un)
+        if np.all(k1 == 0):
+            return np.array([un[0], un[1], 0, 0, un[4]]) #Set vx and vy to zero
         k2 = f(tn + h/2, un + k1*h/2)
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
@@ -44,7 +47,7 @@ class Solver():
             un1[4] -= (un[4] - Rocket().Mp_a)
             self.rocket_dropped = True
         return un1
-
+    
     def solve_general(self, u_0, f, T, N):
         """
         Solve the ODE with a fourth order Runge-Kutta method.
@@ -66,7 +69,12 @@ class Solver():
 
         for n in range(N - 1):
             u[n+1] = self.solve_singlestep(f, n*h, u[n], h)
-
+            if u[n+1][2] == 0 and u[n+1][3] == 0:
+                # Rocked stopped on ground
+                for i in range(n+1, N):
+                    u[i] = np.array([u[n+1][0], u[n+1][1], 0, 0, u[n+1][4]])  
+                return u
+                    
         return u
 
     def solve_rocket1d(self, rocket):
