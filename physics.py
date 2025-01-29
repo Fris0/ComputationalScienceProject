@@ -147,6 +147,7 @@ class Rocket():
 
         if h < 0:
             self.impact = True
+            print("crash")
 
         if self.impact:
             return np.array([0, 0, 0, 0, 0])
@@ -218,6 +219,7 @@ class Rocket():
 
         if h < 0:
             self.impact = True
+            print("Hoi")
 
         if self.impact:
             return np.array([0, 0, 0, 0, 0])

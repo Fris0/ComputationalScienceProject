@@ -36,6 +36,9 @@ class Solver():
         """
 
         k1 = f(tn, un)
+        if np.all(k1 == 0):
+            k1[-1] = un[-1]
+            return k1
         k2 = f(tn + h/2, un + k1*h/2)
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
@@ -66,7 +69,12 @@ class Solver():
 
         for n in range(N - 1):
             u[n+1] = self.solve_singlestep(f, n*h, u[n], h)
-
+            if np.all(u[n+1][:-1] == 0):
+                mass = u[n+1][-1]
+                for i in range(n+1, N-1):
+                    u[i][-1] = mass
+                return u
+                    
         return u
 
     def solve_rocket1d(self, rocket):
@@ -208,20 +216,21 @@ class Solver():
         # Print initial values to stdout
         print(f"Intial conditions are: {posx, posy, velx, vely, mass}")
         T = self.tend-self.tbegin  # Total run time.
-        N = int(self.min_its)  # Steps
+#         N = int(self.min_its)  # Steps
+        N= 64000
         self.Nike = True
 
         result = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N//2)
         result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
         mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
-        while (mymax >= self.eps and 2 * N < self.max_its):
-            print(f"Desired tolerance not reached, increasing number of \
-                interpolation points to {N} and current maximum error is {mymax}")
-            N *= 2
-            result = result_2
-            result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
-            mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
+#         while (mymax >= self.eps and 2 * N < self.max_its):
+#             print(f"Desired tolerance not reached, increasing number of \
+#                 interpolation points to {N} and current maximum error is {mymax}")
+#             N *= 2
+#             result = result_2
+#             result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
+#             mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
 
