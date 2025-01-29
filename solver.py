@@ -217,7 +217,6 @@ class Solver():
         print(f"Intial conditions are: {posx, posy, velx, vely, mass}")
         T = self.tend-self.tbegin  # Total run time.
         N = int(self.min_its)  # Steps
-        N= 6400
         self.Nike = True
 
         result = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N//2)
