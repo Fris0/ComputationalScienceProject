@@ -247,7 +247,7 @@ class Rocket():
             area = self.A_a
 
         # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
-        g_local = self.g * (self.Re / (self.Re + h)**2) if (self.Re + h) > 0 else self.g
+        g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
         # Flight angle from vertical
         if h < 2:
@@ -292,9 +292,9 @@ class Rocket():
         ax = Fx_net / m
         ay = Fy_net / m
 
-        # if t > 30:
+        # if t > 3.5 and t < self.t_b_n + self.t_int:
         #     print([vx, vy, ax, ay, -mdot])
-        #     print(Fx_net, Fy_net, Fy_drag, Fy_thrust, (-m * g_local))
+        #     print(Fx_net, Fy_net, Fy_drag, (-m * g_local))
 
         return np.array([vx, vy, ax, ay, -mdot])
 
