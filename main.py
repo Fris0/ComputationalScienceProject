@@ -24,7 +24,7 @@ def plot_while_processing():
     fig, ax = plt.subplots(1,4, figsize=(16,8))
     for angle in la:
         # Resetting / Starting simulation.
-        solver = Solver(tend=40)
+        solver = Solver(tend=1000)
 
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(la=angle))
@@ -133,12 +133,48 @@ def plot_thrust_data_from_simulation():
     ax[0].set_ylim([-1, None])
     ax[0].set_xlim([-1, None])
     ax[0].legend()
+
+def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N):
+    for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
+        # Resetting / Starting simulation.
+        solver = Solver(tend=1000)
+
+        # Simulating with new angle.
+        result = solver.solve_rocketNike(Rocket(la=launchangle))
+
+        # Extracting data.
+        distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
+        altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
+        velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
+        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
+        time = np.linspace(solver.tbegin, solver.tend, len(distance))
+        plt.plot(distance, altitude)
+
+        # Writing to file
+        d = {'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
+        data = pd.DataFrame(data=d)
+        data.to_csv("Modeldata/AngleData/LAis" + str(int(launchangle)) + ".csv")
     plt.show()
+
+def read_data_and_plot():
+    with open("data.txt", "r") as f:
+        while True:
+            line = f.readline()
+            if line != "":
+                res = np.array(list(map(float, line.split(sep=" "))))
+                print(res)
+                plt.bar(res[0], res[1])
+            else:
+                break
+        plt.show()
 
 if __name__ == "__main__":
     option = None
     try:
         option = int(sys.argv[1])
+        startlaunch = int(sys.argv[2])
+        endlaunch = int(sys.argv[3])
+        N = int(sys.argv[4])
     except:
         print(f"No option given {option}.")
 
@@ -148,5 +184,8 @@ if __name__ == "__main__":
         obtain_angle_data_from_simulation()
     elif option == 3:
         obtain_thrust_data_from_simulation()
+    elif option == 4:
+        obtain_data_from_launchangle_simulation(startlaunch, endlaunch, N)
     else:
         plot_thrust_data_from_simulation()
+
