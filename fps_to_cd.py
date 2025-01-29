@@ -161,7 +161,7 @@ Cd_apache_thrusting = create_f(feet_per_secs2, Cds_apache_thrusting)
 if __name__ == "__main__":
     plt.scatter(feet_per_secs1[:], Cds_nike[:], label="data")
     t = np.linspace(0, 11000, 3500)
-    plt.plot(t, fps_to_Cd(t), color="red", label="interpolated")
+    # plt.plot(t, fps_to_Cd(t), color="red", label="interpolated")
     plt.xlabel("feet per second")
     plt.ylabel("Cd")
     plt.legend()

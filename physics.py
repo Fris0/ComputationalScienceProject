@@ -119,7 +119,8 @@ class Rocket():
 
         # Forces
         F_weight = -m * self.g
-        F_drag = -0.5 * rho(y) * fps_to_Cd(v) * self.A * v**2
+        # F_drag = -0.5 * rho(y) * fps_to_Cd(v) * self.A * v**2
+        F_drag = 0
         F_thrust = thrust
         F_net = F_weight + F_drag + F_thrust
 
@@ -179,7 +180,8 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        D = 0.5 * rho(h) * fps_to_Cd(speed) * self.A * speed**2
+        # D = 0.5 * rho(h) * fps_to_Cd(speed) * self.A * speed**2
+        D = 0
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
