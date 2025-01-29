@@ -21,7 +21,7 @@ class Solver():
         self.rocket_dropped = False
         self.Nike = False
 
-
+    
     def solve_singlestep(self, f, tn, un, h):
         """
         Perform one step of the fourth order Runge-Kutta
@@ -47,7 +47,7 @@ class Solver():
             un1[4] -= (un[4] - Rocket().Mp_a)
             self.rocket_dropped = True
         return un1
-
+    
     def solve_general(self, u_0, f, T, N):
         """
         Solve the ODE with a fourth order Runge-Kutta method.
@@ -72,9 +72,9 @@ class Solver():
             if u[n+1][2] == 0 and u[n+1][3] == 0:
                 # Rocked stopped on ground
                 for i in range(n+1, N):
-                    u[i] = np.array([u[n+1][0], u[n+1][1], 0, 0, u[n+1][4]])
+                    u[i] = np.array([u[n+1][0], u[n+1][1], 0, 0, u[n+1][4]])  
                 return u
-
+                    
         return u
 
     def solve_rocket1d(self, rocket):
@@ -108,8 +108,7 @@ class Solver():
 
         while (mymax >= self.eps and 2 * N < self.max_its):
             print(f"Desired tolerance not reached, increasing number of \
-                  interpolation points to {N} and current maximum error is {mymax} \
-                  at {np.argmax(np.abs(np.repeat(result, repeats=2, axis=0) - result_2), axis=0)}")
+                  interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
             result_2 = self.solve_general(args, rocket.rocket_1d_dynamics, T, N)
@@ -149,10 +148,7 @@ class Solver():
 
         while (mymax >= self.eps and 2 * N < self.max_its):
             print(f"Desired tolerance not reached, increasing number of \
-                  interpolation points to {N} and current maximum error is {mymax}, \
-                  at {np.argmax(np.abs(np.repeat(result, repeats=2, axis=0) - result_2), axis=0)}")
-            for val in np.argmax(np.abs(np.repeat(result, repeats=2, axis=0) - result_2), axis=0):
-                print(np.abs(np.repeat(result, repeats=2, axis=0) - result_2)[val], result[val], np.repeat(result, repeats=2, axis=0)[val])
+                  interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
             result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).rocket_2d_dynamics, T, N)
@@ -209,14 +205,6 @@ class Solver():
             # print(f"x: {x}, y: {y}, a: {a}, b: {b}, r: {r}, distance: {distance}, altitude: {altitude}, earthangle: {earthangle}")
             return distance, altitude
 
-        def changedmax(arr1):
-            mymax = 0
-            for item in arr1:
-                if item[3] != 0 and item[4] != 0:
-                    if mymax < np.max(item):
-                        mymax = np.max(item)
-            return mymax
-
         # Starting conditions
         mass = rocket.Mr
         posx = 0
@@ -233,8 +221,7 @@ class Solver():
 
         result = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N//2)
         result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
-        mymax = changedmax(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
-        # mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
+        mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         while (mymax >= self.eps and 2 * N < self.max_its):
             print(f"Desired tolerance not reached, increasing number of \
@@ -242,7 +229,7 @@ class Solver():
             N *= 2
             result = result_2
             result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
-            mymax = changedmax(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
+            mymax = np.max(np.abs(np.repeat(result, repeats=2, axis=0) - result_2))
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
 

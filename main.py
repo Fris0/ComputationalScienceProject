@@ -76,30 +76,33 @@ def obtain_angle_data_from_simulation():
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
 
 def obtain_thrust_data_from_simulation():
-    thrust_samples = np.random.normal(5130, 0.05*5130, 1000)
-    with open("data.txt", "w") as f:
-        for idx, thrust in enumerate(thrust_samples):
-            # Resetting / Starting simulation.
-            solver = Solver(tend=1000)
+    thrust_samples = np.random.normal(5130, 0.05*5130, 10)
 
-            # Simulating with new angle.
-            result = solver.solve_rocketNike(Rocket(T= thrust * 32.174))
+    for idx, thrust in enumerate(thrust_samples):
+        # Resetting / Starting simulation.
+        solver = Solver(tend=1000)
+        # Simulating with new angle.
+        result = solver.solve_rocketNike(Rocket(T = thrust * 32.174))
+        # Extracting data.
+        distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
+        altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
+        velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
+        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
+        time = np.linspace(solver.tbegin, solver.tend, len(distance))
+        # Writing to file
+        d = {'run': idx, 'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
+        data = pd.DataFrame(data=d)
+        data.to_csv('thrust_data.csv', mode='a', index=False)
 
-            # Extracting data.
-            distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
-            altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
-            velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
-            mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
-            time = np.linspace(solver.tbegin, solver.tend, len(distance))
-
-            # Writing to file
-            d = {'run': idx, 'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
-            data = pd.DataFrame(data=d)
-            data.to_csv('thrust_data.csv', mode='a', index=False)
 
 def plot_thrust_data_from_simulation():
     df = pd.read_csv("thrust_data.csv", low_memory=False)
     df["run"] = pd.to_numeric(df["run"], errors="coerce")
+    df["distance"] = pd.to_numeric(df["distance"], errors="coerce")
+    df["altitude"] = pd.to_numeric(df["altitude"], errors="coerce")
+    df["velocity"] = pd.to_numeric(df["velocity"], errors="coerce")
+    df["mass"] = pd.to_numeric(df["mass"], errors="coerce")
+    df["time"] = pd.to_numeric(df["time"], errors="coerce")
 
     start = df.run.min()
     end = df.run.max()
@@ -132,12 +135,11 @@ def plot_thrust_data_from_simulation():
 
     ax[0].set_ylim([-1, None])
     ax[0].set_xlim([-1, None])
-    ax[0].legend()
 
 def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N):
     for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
         # Resetting / Starting simulation.
-        solver = Solver(tend=1000)
+        solver = Solver(tend=400)
 
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(la=launchangle))
