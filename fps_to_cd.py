@@ -86,15 +86,15 @@ feet_per_secs = [1125.33 * mach for mach in Machs]
 def create_f():
     xs = np.array(feet_per_secs)
     ys = np.array(Cds)
-    spline_function = scipy.interpolate.CubicSpline(xs, ys)
-    return spline_function
+    linear_function = scipy.interpolate.interp1d(xs, ys, kind='linear')
+    return linear_function
 
 
 fps_to_Cd = create_f()
 
 if __name__ == "__main__":
-    plt.scatter(feet_per_secs[:-2], Cds[:-2], label="data")
-    t = np.linspace(0, 3500, 3500)
+    plt.scatter(feet_per_secs[:], Cds[:], label="data")
+    t = np.linspace(0, 11000, 3500)
     plt.plot(t, fps_to_Cd(t), color="red", label="interpolated")
     plt.xlabel("feet per second")
     plt.ylabel("Cd")
