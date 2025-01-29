@@ -21,7 +21,7 @@ class Verifier():
         pass
 
     def PlotData(modeldata, verificationdata, xlabel="x",
-                 ylabel="y", titel="Temp", savefig=False, savepos=""):
+                 ylabel="y", titel="Verification data", savefig=False, savepos=""):
         """
         Function that plots the models data versus the data of the actual solve.
         Input:
@@ -40,17 +40,17 @@ class Verifier():
         Side effects:
             - If savefig is True writes a figure to the disc.
         """
-        figure, axes = plt.subplots(1,2)
-        for i, fig in enumerate(axes):
-            fig.plot(modeldata[i][0], modeldata[i][1], label="Model data")
-            fig.plot(verificationdata[0], verificationdata[1], label="Verification data")
-            fig.set_xlabel(xlabel)
-            fig.set_ylabel(ylabel)
-            fig.set_title(titel)
-            fig.legend()
+        # figure, axes = plt.subplots(1, 2)
+        # for i, fig in enumerate(axes):
+        plt.plot(modeldata[0][0], modeldata[0][1], label="Model data")
+        plt.plot(verificationdata[0], verificationdata[1], label="Verification data")
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.title(titel)
+        plt.legend()
         if (savefig):
             assert savepos != "", "Please insert a valid string to save to."
-            plt.imsave(fname=savepos)
+            plt.savefig(savepos)
         plt.show()
 
     def DataCreator(sourceimg, outputcsv, xaxis_map, yaxis_map,
@@ -106,9 +106,9 @@ class Verifier():
         for point in reds_arr:
             # Check if data in bounds
             if (upperleftpos[0] <= point[0]
-                 and point[0] <= lowerrightpos[0]
-                 and upperleftpos[1] <= point[1]
-                 and point[1] <= lowerrightpos[1]):
+                    and point[0] <= lowerrightpos[0]
+                    and upperleftpos[1] <= point[1]
+                    and point[1] <= lowerrightpos[1]):
 
                 xbetween = len(blues_arr)-2
                 ybetween = len(greens_arr)-2
@@ -155,23 +155,13 @@ class Verifier():
 
 if __name__ == "__main__":
     currocket = Rocket()
-    # currocket.Mp = 755.0
-    # currocket.t_b = 3.5
-    # currocket.Mr = 0
-    # with open("ValidationSets/NASA data/rocket_mass.txt") as file:
-    #     for line in file:
-    #         currocket.Mr += float(line)
-    # currocket.T = 22820
-    # currocket.Cd = 0.5 # See page 10.
-    # currocket.A =
-    # currocket.I_sp =
 
     mysolver = Solver()
     mysolver.tbegin = 0
-    mysolver.tend = 16
+    mysolver.tend = 35
 
     # Rotate the two models around their axes.
-    sol = mysolver.solve_rocket2d(currocket)
+    sol = mysolver.solve_rocketNike(currocket)
     print(np.shape(sol))
     modeldata = np.transpose(sol, [0, 2, 1])
     # print(np.transpose(sol, [0, 2, 1]).shape)
@@ -181,22 +171,4 @@ if __name__ == "__main__":
                         sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
     verificationdata = (verificationdata.T)[1:]
     print(np.shape(verificationdata))
-    Verifier.PlotData(np.array(plotdata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
-    # modeldata = mysolver.solve_rocket(currocket).T
-    # modeldata = [modeldata[1], modeldata[0]]
-    # print(np.shape(modeldata))
-    # verificationdata = (pd.read_csv("ValidationSets/NASA data/Flight path data.csv").
-    #                     sort_values(by=["Altitude (thousands of feet)"])).to_numpy()
-    # verificationdata = (verificationdata.T)[1:]
-    # print(np.shape(verificationdata))
-    # # print(verificationdata)
-    # Verifier.PlotData(np.array(modeldata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
-    # # Verifier.PlotData(np.array(modeldata)/1000, , "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=False)
-
-
-    # Verifier.DataCreator("ValidationSets/NASA data/Flight path data.png",
-    #                      "ValidationSets/NASA data/Flight path data.csv",
-    #                      {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
-    #                      {0: 200, 1: 150, 2: 100, 3: 50, 4: 0},
-    #                      xlabel="Speed (thousands of feet per second)",
-    #                      ylabel="Altitude (thousands of feet)")
+    Verifier.PlotData(np.array(plotdata)/1000, verificationdata, "Speed (thousands of feet per second)", "Altitude (thousands of feet)", savefig=True, savepos="verifier.png")
