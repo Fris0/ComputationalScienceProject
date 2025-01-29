@@ -1,7 +1,7 @@
 # Here the general physics.
 # Responsible people: Hans, George, Riemer, Mark, Rik
 import numpy as np
-from fps_to_cd import fps_to_Cd
+import fps_to_cd
 
 def rho(h):
     """
@@ -222,29 +222,34 @@ class Rocket():
         if self.impact:
             return np.array([0, 0, 0, 0, 0])
 
+        speed = np.sqrt(vx**2 + vy**2)
         # Stage 1 Nike Burn and Detach
         if t < self.t_b_n:
             thrust = self.T_n
             mdot = self.mass_flow_nike
             area = self.A
+            Cd = fps_to_cd.Cd_nike_thrusting(speed)
 
         # Nike dropped, no thrust
         elif t < self.t_b_n + self.t_int:
             thrust = 0.0
             mdot = 0.0
             area = self.A_a
+            Cd = fps_to_cd.Cd_apache_coasting(speed)
 
         # Stage 2 Apache burn
         elif t < self.t_b_n + self.t_int + self.t_b_a:
             thrust = self.T_a
             mdot = self.mass_flow_apache
             area = self.A_a
+            Cd = fps_to_cd.Cd_apache_thrusting(speed)
 
         # Post Apache burnout
         else:
             thrust = 0.0
             mdot = 0.0
             area = self.A_a
+            Cd = fps_to_cd.Cd_apache_coasting(speed)
 
         # Inverse-square law: g(y) = g0 * (Re / (Re + y))^2
         g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
@@ -255,8 +260,6 @@ class Rocket():
         else:
             fa = np.arctan2(vy, vx)
 
-
-        speed = np.sqrt(vx**2 + vy**2)
         if speed > 1e-12:
             vx_hat = vx / speed
             vy_hat = vy / speed
@@ -265,7 +268,7 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        D = 0.5 * rho(h) * fps_to_Cd(speed) * area * speed**2
+        D = 0.5 * rho(h) * Cd * area * speed**2
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
