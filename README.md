@@ -2,7 +2,7 @@
 This is the repository for the project Computational Science course. Built by team 15 that focusses on rocket trajectory.
 
 # requirements
-- numpy 
+- numpy
 - matplotlib
 - pandas
 - opencv-python
@@ -24,12 +24,16 @@ This is the repository for the project Computational Science course. Built by te
 - Download the dependencies using pip3 install -r requirements.txt
 - Run the main.py obtain data function / plot function for the angle.
   - 1:
-      plot_while_processing()
+        plot_while_processing()
   - 3:
         obtain_thrust_data_from_simulation()
   - 4:
         obtain_data_from_launchangle_simulation(startlaunch, endlaunch, N)
   - 5:
         obtain_optimal_angle()
+  - 6:
+        obtain_poster_launchangle_pic()
+  - 7:
+        obtain_zoomed_in_launchangle_pic()
   - else:
         plot_thrust_data_from_simulation()

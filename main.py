@@ -12,12 +12,16 @@
 # - Run this python file in an up-to-date interpreter > 3.10.
 # - Run by python3 main.py <option number>
 
+# Data manipulation
 import numpy as np  # Used for the numpy arrays and it's functions.
-import pandas as pd  # Used for storing the numpy arrays of the simulation.
-import sys  # For reading out the std-in from terminal input.
+# self-made libraries
 from solver import Solver
 from physics import Rocket
+# Plots
 import matplotlib.pyplot as plt  # Used for plotting the simulation data.
+# IO stuff
+import sys  # For reading out the std-in from terminal input.
+import pandas as pd  # Used for storing the numpy arrays of the simulation.
 from os import listdir  # Used for showing directories.
 from os.path import isfile, join  # Used for storing data in a file.
 
@@ -139,12 +143,58 @@ def plot_thrust_data_from_simulation() -> None:
     plt.ylabel("altitude")
     plt.show()
 
-
-def obtain_data_from_launchangle_simulation(startlaunchangle,
-                                            endlaunchangle, N) -> None:
+def obtain_data_from_launchangle_simulation(startlaunchangle: float,
+                                            endlaunchangle: float, N: int) -> None:
     """
     Obtain the distance of the Nike rocket for different angles,
     store the data in a csv file and plot the data.
+    Tip: this is useful for "multithreading" the data obtaining specifically
+         one can run in bash: >>> python3 main.py 4 0 15 16
+         and then in another terminal: >>>python3 main.py 4 15 30 15
+         This significantly speeds up the code.
+
+
+    Input: None
+    Output: None
+
+    Side-effects:
+    - Write the dictionaries as (Panda) dataframes to the
+    thrust_data.csv file;
+    - Plot the data in a line graph;
+    - Write the plot to "Modeldata/AngleData/bestangleplot.png".
+    """
+
+    for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
+        # Resetting / Starting simulation.
+        solver = Solver(tend=1000)
+
+        # Simulating with new angle.
+        result = solver.solve_rocketNike(Rocket(la=launchangle))
+
+        # Extracting data.
+        distance = np.nan_to_num(result[1][:, 0].reshape(1, -1)[0], 0)
+        altitude = np.nan_to_num(result[1][:, 1].reshape(1, -1)[0], 0)
+        velocity = np.nan_to_num(result[1][:, 2].reshape(1, -1)[0], 0)
+        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
+        time = np.linspace(solver.tbegin, solver.tend, len(distance))
+        plt.plot(distance, altitude, label=str(launchangle) + str('°'))
+
+        # Writing to file
+        d = {'distance': distance, 'altitude': altitude, 'velocity': velocity,
+             'mass': mass, 'time': time}
+        data = pd.DataFrame(data=d)
+        data.to_csv("Modeldata/AngleData/LAis" +
+                    str(launchangle).replace('.', '_') + ".csv")
+    plt.xlabel("Distance (ft)")
+    plt.ylabel("Altitude (ft)")
+    plt.legend()
+    plt.savefig("Modeldata/AngleData/bestangleplot.png", dpi=600)
+    plt.show()
+
+def obtain_poster_launchangle_pic() -> None:
+    """
+    Obtains the pictures of the launchangles for the launch angles on the
+    poster.
 
     Input: None
     Output: None
@@ -153,6 +203,50 @@ def obtain_data_from_launchangle_simulation(startlaunchangle,
     - Write the dictionaries as (Panda) dataframes to the
     thrust_data.csv file.
     - Plot the data in a line graph.
+    - Write the plot to "Modeldata/AngleData/bestangleplot3.png"
+    """
+    for launchangle in [0, 22.5, 45, 51, 52, 53, 54, 55, 67.5, 90]:
+        # Resetting / Starting simulation.
+        solver = Solver(tend=1000)
+
+        # Simulating with new angle.
+        result = solver.solve_rocketNike(Rocket(la=launchangle))
+
+        # Extracting data.
+        distance = np.nan_to_num(result[1][:, 0].reshape(1, -1)[0], 0)
+        altitude = np.nan_to_num(result[1][:, 1].reshape(1, -1)[0], 0)
+        velocity = np.nan_to_num(result[1][:, 2].reshape(1, -1)[0], 0)
+        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
+        time = np.linspace(solver.tbegin, solver.tend, len(distance))
+        plt.plot(distance, altitude, label=str(launchangle) + str('°'))
+
+        # Writing to file
+        d = {'distance': distance, 'altitude': altitude, 'velocity': velocity,
+             'mass': mass, 'time': time}
+        data = pd.DataFrame(data=d)
+        data.to_csv("Modeldata/AngleData/LAis" +
+                    str(launchangle).replace('.', '_') + ".csv")
+    plt.xlim([4275000, 4303500])
+    plt.ylim([0, 10000])
+    plt.xlabel("Distance (ft)")
+    plt.ylabel("Altitude (ft)")
+    plt.legend()
+    plt.savefig("Modeldata/AngleData/bestangleplot2.png", dpi=600)
+    plt.show()
+
+def obtain_zoomed_in_launchangle_pic() -> None:
+    """
+    Obtains the zoomed in pictures of the launchangles for the almost optimal
+    launch angles.
+
+    Input: None
+    Output: None
+
+    Side-effects:
+    - Write the dictionaries as (Panda) dataframes to the
+    thrust_data.csv file.
+    - Plot the data in a line graph.
+    - Write the plot to "Modeldata/AngleData/bestangleplot3.png"
     """
 
     # for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
@@ -188,8 +282,8 @@ def obtain_data_from_launchangle_simulation(startlaunchangle,
 
 def obtain_optimal_angle() -> None:
     """
-    Run the Nike physics simulation with distinct angles and store the results
-    in a csv file with a tolerance of 1e2.
+    Goes through the list of csv's stored in Modeldata/AngleData and then
+    figures out which one reaches the highest distance.
 
     Side note: Used for the data analysis and requires long
     cpu time.
@@ -197,55 +291,25 @@ def obtain_optimal_angle() -> None:
     Input: None
     Output: None
 
-    Side-effect:
-    - Writing the results of the simulation to the csv file.
+    Side effects:
+        - Prints the best angle to stdout
     """
     files = [f for f in listdir("Modeldata/AngleData")
              if isfile(join("Modeldata/AngleData", f))]
     mymax = 0
     bestangle = 0
 
-    for i, file in enumerate(files):
+    for file in files:
         if ".png" in file:
             continue
         data = pd.read_csv(join("Modeldata/AngleData", file))
         distance = data['distance']
-        # print(distance)
         curmax = np.max(distance)
-        # print(curmax)
         if mymax < curmax:
             print(curmax, mymax, file, np.argmax(distance))
             mymax = curmax
             str_angle = str(file).removeprefix("LAis").removesuffix(".csv")
             bestangle = float(str_angle)
-    curangle = bestangle
-    bestangle = 0
-
-    for launchangle in np.linspace(curangle-1, curangle+1, 201):
-        # Resetting / Starting simulation.
-        solver = Solver(tend=1000)
-
-        # Simulating with new angle.
-        result = solver.solve_rocketNike(Rocket(la=launchangle))
-
-        # Extracting data.
-        distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
-        altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
-        velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
-        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
-        time = np.linspace(solver.tbegin, solver.tend, len(distance))
-
-        if mymax < np.max(distance):
-            mymax = np.max(distance)
-            bestangle = launchangle
-            print(bestangle)
-
-        # Writing to file
-        d = {'distance': distance, 'altitude': altitude, 'velocity': velocity,
-             'mass': mass, 'time': time}
-        data = pd.DataFrame(data=d)
-        data.to_csv("Modeldata/AngleData/LAis" +
-                    str(launchangle).replace('.', '_') + ".csv")
     print(bestangle)
 
 
@@ -279,5 +343,9 @@ if __name__ == "__main__":
         obtain_data_from_launchangle_simulation(startlaunch, endlaunch, N)
     elif option == 5:
         obtain_optimal_angle()
+    elif option == 6:
+        obtain_poster_launchangle_pic()
+    elif option == 7:
+        obtain_zoomed_in_launchangle_pic()
     else:
         plot_thrust_data_from_simulation()
