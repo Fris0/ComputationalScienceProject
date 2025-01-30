@@ -84,7 +84,7 @@ class Solver():
         - solve_rocket1d: Solves the 1 staged 2 dimensional rocket solver;
         - solve_rocket1d: Solves the 2 stages 2 dimensional rocket solver;
     """
-    def __init__(self, tolerance: float = 1e2,
+    def __init__(self, tolerance: float = 1e4,
                  tbegin: float = 0,
                  tend: float = 5,
                  min_its: float = 1e4,

@@ -161,7 +161,6 @@ def obtain_data_from_launchangle_simulation(startlaunchangle: float,
     - Write the dictionaries as (Panda) dataframes to the
     thrust_data.csv file;
     - Plot the data in a line graph;
-    - Write the plot to "Modeldata/AngleData/bestangleplot.png".
     """
 
     for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
@@ -183,12 +182,11 @@ def obtain_data_from_launchangle_simulation(startlaunchangle: float,
         d = {'distance': distance, 'altitude': altitude, 'velocity': velocity,
              'mass': mass, 'time': time}
         data = pd.DataFrame(data=d)
-        data.to_csv("Modeldata/AngleData/LAis" +
+        data.to_csv("ModelData/AngleData/LAis" +
                     str(launchangle).replace('.', '_') + ".csv")
     plt.xlabel("Distance (ft)")
     plt.ylabel("Altitude (ft)")
     plt.legend()
-    plt.savefig("Modeldata/AngleData/bestangleplot.png", dpi=600)
     plt.show()
 
 def obtain_poster_launchangle_pic() -> None:
@@ -203,7 +201,7 @@ def obtain_poster_launchangle_pic() -> None:
     - Write the dictionaries as (Panda) dataframes to the
     thrust_data.csv file.
     - Plot the data in a line graph.
-    - Write the plot to "Modeldata/AngleData/bestangleplot3.png"
+    - Write the plot to "ModelData/AngleData/bestangleplot3.png"
     """
     for launchangle in [0, 22.5, 45, 51, 52, 53, 54, 55, 67.5, 90]:
         # Resetting / Starting simulation.
@@ -224,14 +222,14 @@ def obtain_poster_launchangle_pic() -> None:
         d = {'distance': distance, 'altitude': altitude, 'velocity': velocity,
              'mass': mass, 'time': time}
         data = pd.DataFrame(data=d)
-        data.to_csv("Modeldata/AngleData/LAis" +
+        data.to_csv("ModelData/AngleData/LAis" +
                     str(launchangle).replace('.', '_') + ".csv")
     plt.xlim([4275000, 4303500])
     plt.ylim([0, 10000])
     plt.xlabel("Distance (ft)")
     plt.ylabel("Altitude (ft)")
     plt.legend()
-    plt.savefig("Modeldata/AngleData/bestangleplot2.png", dpi=600)
+    plt.savefig("ModelData/AngleData/bestangleplot2.png", dpi=600)
     plt.show()
 
 def obtain_zoomed_in_launchangle_pic() -> None:
@@ -246,7 +244,7 @@ def obtain_zoomed_in_launchangle_pic() -> None:
     - Write the dictionaries as (Panda) dataframes to the
     thrust_data.csv file.
     - Plot the data in a line graph.
-    - Write the plot to "Modeldata/AngleData/bestangleplot3.png"
+    - Write the plot to "ModelData/AngleData/bestangleplot3.png"
     """
 
     # for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
@@ -269,20 +267,20 @@ def obtain_zoomed_in_launchangle_pic() -> None:
         d = {'distance': distance, 'altitude': altitude, 'velocity': velocity,
              'mass': mass, 'time': time}
         data = pd.DataFrame(data=d)
-        data.to_csv("Modeldata/AngleData/LAis" +
+        data.to_csv("ModelData/AngleData/LAis" +
                     str(launchangle).replace('.', '_') + ".csv")
     plt.xlim([4275000, 4303500])
     plt.ylim([0, 10000])
     plt.xlabel("Distance (ft)")
     plt.ylabel("Altitude (ft)")
     plt.legend()
-    plt.savefig("Modeldata/AngleData/bestangleplot3.png", dpi=600)
+    plt.savefig("ModelData/AngleData/bestangleplot3.png", dpi=600)
     plt.show()
 
 
 def obtain_optimal_angle() -> None:
     """
-    Goes through the list of csv's stored in Modeldata/AngleData and then
+    Goes through the list of csv's stored in ModelData/AngleData and then
     figures out which one reaches the highest distance.
 
     Side note: Used for the data analysis and requires long
@@ -294,15 +292,15 @@ def obtain_optimal_angle() -> None:
     Side effects:
         - Prints the best angle to stdout
     """
-    files = [f for f in listdir("Modeldata/AngleData")
-             if isfile(join("Modeldata/AngleData", f))]
+    files = [f for f in listdir("ModelData/AngleData")
+             if isfile(join("ModelData/AngleData", f))]
     mymax = 0
     bestangle = 0
 
     for file in files:
         if ".png" in file:
             continue
-        data = pd.read_csv(join("Modeldata/AngleData", file))
+        data = pd.read_csv(join("ModelData/AngleData", file))
         distance = data['distance']
         curmax = np.max(distance)
         if mymax < curmax:
