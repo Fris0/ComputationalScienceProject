@@ -114,7 +114,7 @@ def plot_thrust_data_from_simulation():
         # Plotting the different angles for analysis
         plt.bar(thrust, distance)
 
-    plt.xlabel("distance") 
+    plt.xlabel("distance")
     plt.ylabel("altitude")
     plt.show()
 
@@ -163,9 +163,9 @@ def obtain_optimal_angle():
         if mymax < curmax:
             print(curmax, mymax, file, np.argmax(distance))
             mymax = curmax
-            bestangle = i
-    print(bestangle, file, mymax)
-    curangle = float(str(file).removeprefix("LAis").removesuffix(".csv"))
+            bestangle = float(str(file).removeprefix("LAis").removesuffix(".csv"))
+    print(bestangle, mymax)
+    curangle = bestangle
     bestangle = 0
     for launchangle in np.linspace(curangle-1,curangle+1, 201):
         # Resetting / Starting simulation.
