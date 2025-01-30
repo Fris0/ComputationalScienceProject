@@ -78,13 +78,13 @@ def obtain_angle_data_from_simulation():
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
 
 def obtain_thrust_data_from_simulation():
-    thrust_samples = np.random.normal(5130, 0.05*5130, 10)
+    thrust_samples = np.random.normal(5130, 0.2*5130, 10)
 
     for idx, thrust in enumerate(thrust_samples):
         # Resetting / Starting simulation.
         solver = Solver(tend=1000)
         # Simulating with new angle.
-        result = solver.solve_rocketNike(Rocket(T_a=thrust*32.174, la=85))
+        result = solver.solve_rocketNike(Rocket(T = thrust * 32.174, la=45))
         # Extracting data.
         distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
         altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
@@ -92,55 +92,35 @@ def obtain_thrust_data_from_simulation():
         mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
         time = np.linspace(solver.tbegin, solver.tend, len(distance))
         # Writing to file
-        d = {'run': idx, 'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time}
+        d = {'run': idx, 'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time, 'thrust': thrust}
         data = pd.DataFrame(data=d)
         data.to_csv('thrust_data.csv', mode='a', index=False)
 
 
 def plot_thrust_data_from_simulation():
-    print("Hi")
+
     df = pd.read_csv("thrust_data.csv", low_memory=False)
     df["run"] = pd.to_numeric(df["run"], errors="coerce")
     df["distance"] = pd.to_numeric(df["distance"], errors="coerce")
-    df["altitude"] = pd.to_numeric(df["altitude"], errors="coerce")
-    df["velocity"] = pd.to_numeric(df["velocity"], errors="coerce")
-    df["mass"] = pd.to_numeric(df["mass"], errors="coerce")
-    df["time"] = pd.to_numeric(df["time"], errors="coerce")
+    df["thrust"] = pd.to_numeric(df["thrust"], errors="coerce")
 
     start = df.run.min()
     end = df.run.max()
 
-    fig, ax = plt.subplots(1,4, figsize=(16,8))
-
     for run in range(int(start), int(end) + 1):
-        print("HIii")
 
         df_run = df[df["run"] == run]
 
         # Extracting data.
         distance = df_run["distance"].to_numpy(dtype=np.float64)
         altitude = df_run["altitude"].to_numpy(dtype=np.float64)
-        velocity = df_run["velocity"].to_numpy(dtype=np.float64)
-        mass = df_run["mass"].to_numpy(dtype=np.float64)
-        print(np.max(distance))
 
         # Plotting the different angles for analysis
-        ax[0].plot(distance, altitude)
-        ax[0].set_xlabel("Distance (ft)")
-        ax[0].set_ylabel("Altitude (ft)")
-        ax[1].plot(np.linspace(0, 1000, len(mass)), mass)
-        ax[1].set_xlabel("Time (s)")
-        ax[1].set_ylabel("Mass (lbs)")
-        ax[2].plot(np.linspace(0, 1000, len(mass)), velocity)
-        ax[2].set_xlabel("Time (s)")
-        ax[2].set_ylabel("Velocity (ft/s)")
-        ax[3].plot(velocity, altitude)
-        ax[3].set_xlabel("Velocity (ft/s)")
-        ax[3].set_ylabel("Altitude (ft)")
+        plt.plot(distance, altitude)
 
-    ax[0].set_ylim([-1, None])
-    ax[0].set_xlim([-1, None])
-    fig.show()
+    plt.xlabel("distance")
+    plt.ylabel("altitude")
+    plt.show()
 
 def obtain_data_from_launchangle_simulation(startlaunchangle, endlaunchangle, N):
     # for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
