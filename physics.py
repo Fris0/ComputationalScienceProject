@@ -54,7 +54,7 @@ def rho(h):
 
 class Rocket():
     def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-                 T=42500*32.174, M=1534.0, Mp=886.0, t_b=3.5, I=32800.0, la=90,
+                 T=42500*32.174, M=1534.0, Mp=886.0, Mp_a = 217.00, t_b=3.5, I=32800.0, la=90,
                  T_a =5130.0*32.174):
 
         self.g = g              # gravitational acceleration (ft/s^2)
@@ -77,7 +77,7 @@ class Rocket():
         self.t_b_n = 3.5        # burn time (sec) (Nike)
         self.t_int = 16.5       # time between Nike burnout and Apache ignition (sec)
         self.Mr_a = 131.0      # total propellant mass in Apache after Nike burnout (lbs)
-        self.Mp_a = 217.0      # rocket mass after Nike detaches (lbs)
+        self.Mp_a = Mp_a      # rocket mass after Nike detaches (lbs)
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
         self.T_n = T      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
