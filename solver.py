@@ -8,8 +8,8 @@
 #                  list, ignoring discontinuities.
 #
 # Classes:
-#    - Solver: class containing the actual solvers for different types of rocket
-#              launches and the general settings for those solver functions.
+#    - Solver: class containing the actual solvers for different types of
+#       rocket launches and the general settings for those solver functions.
 # Usage:
 #    - Used in the main folder for solving rocket trajectories.
 
@@ -41,24 +41,25 @@ def changedmax(arr1: list[list[float]],
         - N/A
     """
     assert (len(arr1) == len(arr2)) and (len(arr1) == len(arr3)), \
-            f"All arrays need to be of the samelength, currently they \
+        f"All arrays need to be of the samelength, currently they \
         are: arr1: {len(arr1)}, arr2: {len(arr2)}, arr3: {len(arr3)} "
     mymax = 0
     for i, item in enumerate(arr1):
         # Check for discontinuities
-        if ((arr2[i][2] < 1e-10 #  The rocket has crashed.
-            and arr2[i][3] < 1e-10)
-            or (arr3[i][2] < 1e-10
-            and arr3[i][3] < 1e-10)
-            or (np.abs(arr3[i][4] - 217) < 1e-10 #  The rocket detaches.
-            and np.abs(arr2[i][4] - 217) > 1e-10)
-            or (np.abs(arr3[i][4] - 217) > 1e-10
-            and np.abs(arr2[i][4] - 217) < 1e-10)):
+        if ((arr2[i][2] < 1e-10  # The rocket has crashed.
+                and arr2[i][3] < 1e-10)
+                or (arr3[i][2] < 1e-10
+                    and arr3[i][3] < 1e-10)
+                or (np.abs(arr3[i][4] - 217) < 1e-10  # The rocket detaches.
+                    and np.abs(arr2[i][4] - 217) > 1e-10)
+                or (np.abs(arr3[i][4] - 217) > 1e-10
+                    and np.abs(arr2[i][4] - 217) < 1e-10)):
             continue
 
         if mymax < np.max(item):
             mymax = np.max(item)
     return mymax
+
 
 class Solver():
     """
@@ -83,7 +84,11 @@ class Solver():
         - solve_rocket1d: Solves the 1 staged 2 dimensional rocket solver;
         - solve_rocket1d: Solves the 2 stages 2 dimensional rocket solver;
     """
-    def __init__(self, tolerance=1e2, tbegin=0, tend=5, min_its=1e4, max_its=1e7):
+    def __init__(self, tolerance: float = 1e2,
+                 tbegin: float = 0,
+                 tend: float = 5,
+                 min_its: float = 1e4,
+                 max_its: float = 1e7) -> None:
         """
         Input:
             - tolerance: the absolute tolerance of the error of the solution;
@@ -100,8 +105,10 @@ class Solver():
         self.stage_dropped = False
         self.Nike = False
 
-
-    def solve_singlestep(self, f, tn, un, h):
+    def solve_singlestep(self, f: callable,
+                         tn: float,
+                         un: list[float],
+                         h: float) -> list[float]:
         """
         Perform one step of the fourth order Runge-Kutta
 
@@ -113,11 +120,15 @@ class Solver():
         Output:
         A vector of the same dimension as un with one step of
             the Runge-Kutta performed
+
+        Side effects:
+            - None
         """
 
         k1 = f(tn, un)
         if np.all(k1 == 0):
-            return np.array([un[0], un[1], 0, 0, un[4]]) #Set vx and vy to zero
+            # Set vx and vy to zero
+            return np.array([un[0], un[1], 0, 0, un[4]])
         k2 = f(tn + h/2, un + k1*h/2)
         k3 = f(tn + h/2, un + k2*h/2)
         k4 = f(tn + h, un + k3*h)
@@ -129,7 +140,10 @@ class Solver():
             self.stage_dropped = True
         return un1
 
-    def solve_general(self, u_0, f, T, N):
+    def solve_general(self, u_0: list[float],
+                      f: callable,
+                      T: float,
+                      N: int) -> np.matrix[float]:
         """
         Solve the ODE with a fourth order Runge-Kutta method.
         Arguments:
@@ -249,7 +263,7 @@ class Solver():
         return np.asarray([[(item[0], item[1],
                              np.sqrt(item[2]**2 + item[3]**2), item[4])
                             for item in result]
-                            for result in return_list])
+                           for result in return_list])
 
     def solve_rocketNike(self, rocket: Rocket) -> list[list[list[float]]]:
         """
@@ -310,12 +324,10 @@ class Solver():
             if (np.abs(earthangle) < 1e-3 or np.isnan(earthangle)):
                 earthintersectionpos = r/(r+altitude)
                 return (np.sqrt((x*earthintersectionpos-0)**2
-                                + ((y+r)*earthintersectionpos-r)**2)
-                        , altitude)
+                                + ((y+r)*earthintersectionpos-r)**2), altitude)
 
             distance = earthangle*r
             return distance, altitude
-
 
         # Starting conditions
         mass = rocket.Mr
@@ -346,14 +358,16 @@ class Solver():
                 interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
-            result_2 = self.solve_general(args, Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics, T, N)
+            result_2 = self.solve_general(args,
+                                          Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics,
+                                          T, N)
             absolute_errors = np.abs(np.repeat(result, repeats=2, axis=0) - result_2)
             mymax = changedmax(absolute_errors, np.repeat(result, repeats=2, axis=0), result_2)
 
         return_list = np.asarray((np.repeat(result, repeats=2, axis=0), result_2))
 
         return np.asarray([[(x_y_to_curvature(item[0], item[1])[0],
-                                x_y_to_curvature(item[0], item[1])[1],
+                            x_y_to_curvature(item[0], item[1])[1],
                             np.sqrt(item[2]**2 + item[3]**2), item[4])
                             for item in result]
-                            for result in return_list])
+                          for result in return_list])
