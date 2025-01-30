@@ -19,3 +19,7 @@ This is the repository for the project Computational Science course. Built by te
 - The earth has no local differences in gravity constants
 - There is instantaneous drop off of rocket mass during staged detachments
 
+# Usage
+- Download the repository to your system.
+- Download the dependencies using pip3 install -r requirements.txt
+- Run the main.py obtain data function / plot function for the angle.
