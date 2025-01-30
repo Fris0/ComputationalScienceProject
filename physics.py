@@ -37,17 +37,22 @@ def rho(h: float) -> float:
         5: (0.00086, 270.65, 0.0028),
         6: (0.000064, 214.65, 0.002)
     }
-    h = h * 0.3048
+    
+    h = h * 0.3048 # Convert h to metric
+    
+    # Determine the bin we are in
     if h in boundaries:
+        
         level = boundaries.index(h)
     else:
         boundaries.append(h)
         boundaries.sort()
         level = boundaries.index(h) - 1
 
+    # Retrieve values for this bin
     rho_b, T_b, L_b = values[level]
     h_b = boundaries[level]
-
+    
     case = 2 if (level == 1 or level == 4) else 1
 
     if case == 1:
