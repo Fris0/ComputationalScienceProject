@@ -81,7 +81,7 @@ class Rocket():
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
         self.T_n = T      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
-        self.T_a = 5130.0 * g      # Thrust of Apache (lbf)
+        self.T_a = T_a     # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
         self.mass_flow_apache = self.Mr_a / self.t_b_a  # Apache Mass flow rate (lbs/sec)
         self.impact = False

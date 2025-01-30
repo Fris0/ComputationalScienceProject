@@ -78,21 +78,17 @@ def obtain_angle_data_from_simulation():
             f.write(f"{angle} {np.max(distance)} {np.max(altitude)}\n")
 
 def obtain_thrust_data_from_simulation():
-    thrust_samples = np.random.normal(5130, 0.2*5130, 10)
+    thrust_samples = np.random.normal(5130, 0.2*5130, 20)
 
     for idx, thrust in enumerate(thrust_samples):
         # Resetting / Starting simulation.
         solver = Solver(tend=1000)
         # Simulating with new angle.
-        result = solver.solve_rocketNike(Rocket(T = thrust * 32.174, la=45))
+        result = solver.solve_rocketNike(Rocket(T_a = thrust * 32.174, la=45))
         # Extracting data.
         distance = np.nan_to_num(result[0][:, 0].reshape(1, -1)[0], 0)
-        altitude = np.nan_to_num(result[0][:, 1].reshape(1, -1)[0], 0)
-        velocity = np.nan_to_num(result[0][:, 2].reshape(1, -1)[0], 0)
-        mass = np.nan_to_num(result[0][:, 3].reshape(1, -1)[0], 0)
-        time = np.linspace(solver.tbegin, solver.tend, len(distance))
         # Writing to file
-        d = {'run': idx, 'distance': distance, 'altitude': altitude, 'velocity': velocity, 'mass': mass, 'time': time, 'thrust': thrust}
+        d = {'run': idx, 'distance': distance, 'thrust': thrust}
         data = pd.DataFrame(data=d)
         data.to_csv('thrust_data.csv', mode='a', index=False)
 
@@ -113,12 +109,12 @@ def plot_thrust_data_from_simulation():
 
         # Extracting data.
         distance = df_run["distance"].to_numpy(dtype=np.float64)
-        altitude = df_run["altitude"].to_numpy(dtype=np.float64)
+        thrust = df_run["thrust"].to_numpy(dtype=np.float64)
 
         # Plotting the different angles for analysis
-        plt.plot(distance, altitude)
+        plt.bar(thrust, distance)
 
-    plt.xlabel("distance")
+    plt.xlabel("distance") 
     plt.ylabel("altitude")
     plt.show()
 
