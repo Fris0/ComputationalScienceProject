@@ -25,11 +25,11 @@ This is the repository for the project Computational Science course. Built by te
 - Run the main.py obtain data function / plot function for the angle.
   - 1:
       plot_while_processing()
-    3:
+  - 3:
         obtain_thrust_data_from_simulation()
-    4:
+  - 4:
         obtain_data_from_launchangle_simulation(startlaunch, endlaunch, N)
-    5:
+  - 5:
         obtain_optimal_angle()
-    else:
+  - else:
         plot_thrust_data_from_simulation()
