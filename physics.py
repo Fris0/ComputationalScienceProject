@@ -3,15 +3,20 @@
 import numpy as np
 import fps_to_cd
 
-def rho(h):
+def rho(h: float) -> float:
     """
     Calculates the altitude specific atmospheric density in slug/ft^3
 
     First calculates the density in kg/m^3 and then converts it to slug/ft^3
+    Source: https://en.wikipedia.org/wiki/Barometric_formula#Density_equations
 
-    h: height in feet
+    Input:
+    - h (float): height in feet
 
-    returns: rho in slug/ft^3
+    Output:
+    - rho (float): air density in slug/ft^3
+    
+    Side effects: None
     """
 
     if (h > 580000):
