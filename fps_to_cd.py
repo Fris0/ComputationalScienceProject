@@ -1,6 +1,8 @@
 # Only last three functions are relevant,
 # the rest of the variables just calucalte them
 
+# Data comes from pages 65 and 66 of the nasa document
+
 import numpy as np
 import scipy
 
