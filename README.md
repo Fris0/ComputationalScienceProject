@@ -48,5 +48,6 @@ This is the repository for the project Computational Science course. Built by te
   - ```python main.py 4 45 60 16```
   - ```python main.py 4 60 75 16```
   - ```python main.py 4 75 90 16```
+
   Then to actually obtain the optimal angle simply run:
   ```python main.py 5```
