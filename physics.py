@@ -1,5 +1,19 @@
-# Here the general physics.
-# Responsible people: Hans, George, Riemer, Mark, Rik
+# Program: python.py
+# Authors: Mark, George, Hans, Riemer, Rik
+#
+# Summary:
+#    - Contains the physical system and ODE's of the rocket through flight. 
+# Functions:
+#    - rho: altitude specific air density
+#    - rocket_1D_dynamics: ODE's of a simple rocket in 1D
+#    - rocket_2d_dynmaics: ODE's of a rocket in 2D, nonconstant gravity is implemented.
+#    - Nike_Apache_physics: ODE's of the Nike Apache system (final product). Nonconstant gravity, air
+#        air density, drag coefficients. 
+# Classes:
+#    - Rocket: class containing all necessary input parameters to simulate the Rocket's aerodynamics.  
+# Usage:
+#    - Used in the main folder for inputting physical parameter values and ODE's.
+
 import numpy as np
 import fps_to_cd
 
@@ -63,26 +77,32 @@ def rho(h: float) -> float:
     return 0.0019 * rho_metric
 
 class Rocket():
-    def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
-                 T=42500*32.174, M=1534.0, Mp=886.0, Mp_a = 217.00, t_b=3.5, I=32800.0, la=90,
-                 T_a =5130.0*32.174):
+    """
+    A rocket class initializing the physical state of the rocket, then input 
+    into the aerodynamics functions to produce ODE's at each time step. 
+    """
 
-        self.g = g              # gravitational acceleration (ft/s^2)
-        self.rho = rho          # air density (slug/ft^3)
+    def __init__(self, g=32.174, rho=0.0023769, Cd=0.5, A=1.67,
+                 T=42500.0, M=1534.0, Mp=886.0, Mp_a = 217.00, t_b=3.5, I=32800.0, la=90,
+                 T_a =5130.0):
+        """
+        Initializes the rocket simulation parameters.
+        """
+        self.g = g              # gravitational acceleration (ft/s^2), optional (constant)
+        self.rho = rho          # air density (slug/ft^3), optional (constant)
         self.Cd = Cd            # drag coefficient
         self.A = A              # cross-sectional area (ft^2), largest diameter occurs at nike connection to apache
-        self.t_b = t_b          # burn time (sec) (Nike + Apache)
-        self.T = T              # thrust of Nike (lbf)
+        self.t_b = t_b          # burn time (sec) (Nike)
+        self.T = T * g          # thrust of Nike (converted to lbf by multiplying by g)
         self.I = T * t_b        # Total impulse of Nike (lb-sec)
         self.Mr = M             # total rocket mass with propellant (lbs)
         self.Mp = Mp            # propellant mass (Nike + Apache) (lbs)
+
+        # 2D, Two stage additions
         self.Mr_n = 755.0       # Total propellant mass in Nike (lbs)
         self.mass_flow_nike = self.Mr_n / t_b  # Nike Mass flow rate (lbs/sec)
         self.la = np.deg2rad(la)  # launch angle (radians)
         self.Re = 2.09e7        # approx. earth radius in feet
-
-        # Two stage additions
-        self.Launcher = 0.25    # Launcher rod of Nike Apache (ft) (data on 21 or 0.25ft)
         self.t_b_a = 6.36       # burn time (sec) (Apache)
         self.t_b_n = 3.5        # burn time (sec) (Nike)
         self.t_int = 16.5       # time between Nike burnout and Apache ignition (sec)
@@ -91,22 +111,22 @@ class Rocket():
         self.A_a = 0.239      # cross-sectional area (ft^2) after Nike detaches
         self.T_n = T      # thrust of Nike (lbf)
         self.I_n = self.T_n * self.t_b_n  # Total impulse of Nike (lb-sec)
-        self.T_a = T_a     # Thrust of Apache (lbf)
+        self.T_a = T_a * self.g    # Thrust of Apache (lbf)
         self.I_a = 32800.0      # Total impulse of Apache (lb-sec)
         self.mass_flow_apache = self.Mr_a / self.t_b_a  # Apache Mass flow rate (lbs/sec)
-        self.impact = False
-
-        self.prev_fa = self.la
+        self.impact = False    #stops the simulation when it hits the ground
+        self.prev_fa = self.la # update the stored flight angle after each step
 
     def rocket_1d_dynamics(self, t, state):
         """
         Computes the time derivatives (dy/dt, dv/dt, dm/dt)
-        for a 1D rocket under constant gravity and drag.
+        for a 1D, one stage rocket under constant gravity, air density, and drag.
 
+        Inputs:
         t = time of type float
         state = a tuple of size 3 containing altitude, velocity and mass.
 
-        Resulting ODEs after one time step:
+        Outputs: ODEs after one time step:
         y' = v (Altitude changes at the rate of current velocity)
         v' = Fnet / m (Velocity changes at the rate of net force divided by
             current mass equivalent to acceleration)
@@ -146,20 +166,33 @@ class Rocket():
     def rocket_2d_dynamics(self, t, state):
         """
         Computes the time derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt, dm/dt)
-        for a 2D rocket under nonconstant gravity.
+        for a 2D rocket under nonconstant gravity. This is a one stage flight that carries
+        the Nike parameters throughout the duration of the flight.
 
-        There is no rail or launch constraint phase in the simulation.
+        Inputs:
+        t = time of type float
+        state = a tuple of size 3 containing altitude, velocity and mass.
+
+        Outputs: ODEs after one time step:
+        x' = vx (Altitude changes at the rate of current velocity)
+        y' = vy (Altitude changes at the rate of current velocity)
+        vx' = Fnet_x / m (Velocity changes at the rate of net force divided by
+            current mass equivalent to acceleration)
+        vy' = Fnet_y / m (Velocity changes at the rate of net force divided by
+            current mass equivalent to acceleration)
+        m' = Mr_n / t_b_n or 0 (mass decreases at a constant rate while the
+            engine is burning, then remains unchanged after burnout)
         """
 
         # Unpack state
         x, y, vx, vy, m = state
 
-        # Determines the height the rocket is at.
+        # Determines the height the rocket is at
         h = np.sqrt(x**2 + y**2)
 
+        # If height less than zero, rocket has crashed
         if h < 0:
             self.impact = True
-
         if self.impact:
             return np.array([0, 0, 0, 0, 0])
 
@@ -176,14 +209,18 @@ class Rocket():
         # Inverse-square law: g(y) = g0 * (Re / (Re + h))^2
         g_local = self.g * (self.Re / (self.Re + h))**2 if (self.Re + h) > 0 else self.g
 
-        # Flight angle from vertical
+        # Flight angle is fixed at starting launch angle until a height of 2ft is passed.
+        # Acts as the rocket's stabilizer in the early seconds of the simulation.
         if h < 2:
             fa = self.la
         else:
+            # Flight angles adjusts dynamically as the angle between the velocity vector and horizontal axis
             fa = np.arctan2(vy, vx)
 
+        # Total velocity magnitude
         speed = np.sqrt(vx**2 + vy**2)
         if speed > 1e-12:
+            # Normalizing velocity for the directional component 
             vx_hat = vx / speed
             vy_hat = vy / speed
         else:
@@ -191,8 +228,7 @@ class Rocket():
             vy_hat = 0
 
         # Drag magnitude
-        # D = 0.5 * rho(h) * fps_to_Cd(speed) * self.A * speed**2
-        D = 0
+        D = 0.5 * self.g * self.Cd * self.A * speed**2
 
         # Drag forces(opposite to velocity)
         Fx_drag = -D * vx_hat
@@ -215,19 +251,33 @@ class Rocket():
     def Nike_Apache_physics(self, t, state):
         """
         Computes the time derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt, dm/dt)
-        for a two stage Nike Apache Rocket under nonconstant gravity.
+        for a two stage Nike Apache Rocket under nonconstant gravity, drag coefficents, and air density.
         1) Stage 1 burn: 0 <= t < t_b_n
         2) Coast (interstage): t_b_n <= t < t_b_n + t_int
         3) Stage 2 burn: t_b_n + t_int <= t < t_b_n + t_int + t_b_a
         4) Post-burn coast: t >= t_b_n + t_int + t_b_a
+
+        Inputs:
+        t = time of type float
+        state = a tuple of size 3 containing altitude, velocity and mass.
+
+        Outputs: ODEs after one time step:
+        x' = vx (Altitude changes at the rate of current velocity)
+        y' = vy (Altitude changes at the rate of current velocity)
+        vx' = Fnet_x / m (Velocity changes at the rate of net force divided by
+            current mass equivalent to acceleration)
+        vy' = Fnet_y / m (Velocity changes at the rate of net force divided by
+            current mass equivalent to acceleration)
+        m' = (Mr_n, Mr_a) / (t_b_n, t_b_a) or 0 (mass decreases at a constant rate while the
+            engine is burning, then remains unchanged after burnout)
         """
 
         # Unpack state
         x, y, vx, vy, m = state
 
         # Determines the height the rocket is at.
-        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
-        #h = y
+        # Model the earth like a circle of radius self.Re centered at (0, -self.Re)
+        h = np.sqrt((x-0)**2 + (y+self.Re)**2) - self.Re 
 
         if h < 0:
             self.impact = True
@@ -308,21 +358,4 @@ class Rocket():
         ax = Fx_net / m
         ay = Fy_net / m
 
-        # if t > 3.5 and t < self.t_b_n + self.t_int:
-        #     print([vx, vy, ax, ay, -mdot])
-        #     print(Fx_net, Fy_net, Fy_drag, (-m * g_local))
-
         return np.array([vx, vy, ax, ay, -mdot])
-
-
-# if __name__ == "__main__":
-#     h = np.linspace(0, 300000, 1000000)
-#     rhos = []
-#     for height in h:
-#         rhos.append(rho(height))
-#     import matplotlib.pyplot as plt
-#     plt.plot(h, rhos)
-#     plt.rcParams["text.usetex"]=True
-#     plt.xlabel("height(feet)")
-#     plt.ylabel("Air density(slug/ft$^3$)")
-#     plt.show()
