@@ -144,7 +144,8 @@ def plot_thrust_data_from_simulation() -> None:
     plt.show()
 
 def obtain_data_from_launchangle_simulation(startlaunchangle: float,
-                                            endlaunchangle: float, N: int) -> None:
+                                            endlaunchangle: float,
+                                            N: int) -> None:
     """
     Obtain the distance of the Nike rocket for different angles,
     store the data in a csv file and plot the data.
@@ -154,7 +155,10 @@ def obtain_data_from_launchangle_simulation(startlaunchangle: float,
          This significantly speeds up the code.
 
 
-    Input: None
+    Input:
+        - startlaunchangle, the lowest value for the linspace;
+        - endlaunchangle, the highest value for the linspace;
+        - N, the number of launch angles to test;
     Output: None
 
     Side-effects:
@@ -205,7 +209,7 @@ def obtain_poster_launchangle_pic() -> None:
     """
     for launchangle in [0, 22.5, 45, 51, 52, 53, 54, 55, 67.5, 90]:
         # Resetting / Starting simulation.
-        solver = Solver(tend=1000)
+        solver = Solver(tend=1000, tolerance=1e4)
 
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(la=launchangle))
@@ -250,7 +254,7 @@ def obtain_zoomed_in_launchangle_pic() -> None:
     # for launchangle in np.linspace(startlaunchangle, endlaunchangle, N):
     for launchangle in [51, 52, 53, 54, 55]:
         # Resetting / Starting simulation.
-        solver = Solver(tend=1000)
+        solver = Solver(tend=1000, tolerance=1e2)
 
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(la=launchangle))
@@ -283,9 +287,6 @@ def obtain_optimal_angle() -> None:
     Goes through the list of csv's stored in ModelData/AngleData and then
     figures out which one reaches the highest distance.
 
-    Side note: Used for the data analysis and requires long
-    cpu time.
-
     Input: None
     Output: None
 
@@ -304,11 +305,45 @@ def obtain_optimal_angle() -> None:
         distance = data['distance']
         curmax = np.max(distance)
         if mymax < curmax:
-            print(curmax, mymax, file, np.argmax(distance))
             mymax = curmax
             str_angle = str(file).removeprefix("LAis").removesuffix(".csv")
             bestangle = float(str_angle)
     print(bestangle)
+
+def obtain_angle_plot() -> None:
+    """
+    Goes through the list of csv's stored in ModelData/AngleData and then
+    figures out which one reaches the highest distance.
+
+    Input: None
+    Output: None
+
+    Side effects:
+        - Writes the plot describing all angles to
+          "ModelData/AngleData/bestangleplot5.png"
+    """
+    files = [f for f in listdir("ModelData/AngleData")
+             if isfile(join("ModelData/AngleData", f))]
+    angle_dist_list = []
+
+    for file in files:
+        if ".png" in file:
+            continue
+        data = pd.read_csv(join("ModelData/AngleData", file))
+        str_angle = str(file).removeprefix("LAis").removesuffix(".csv").replace('_', '.')
+        distance = data['distance']
+        curdist = np.max(distance)
+        angle_dist_list.append([float(str_angle), curdist])
+    angle_dist_list.sort(key=lambda x: x[0])
+    angle_dist_list = np.transpose(angle_dist_list)
+    plt.plot(angle_dist_list[0], angle_dist_list[1])
+    plt.xlim([0, 90])
+    plt.ylim([0,5e6])
+    plt.xlabel("Angle (degrees)")
+    plt.ylabel("Distance (ft)")
+    plt.axvline(53, color='red', label='53°')
+    plt.savefig("ModelData/AngleData/bestangleplot5.png", dpi=600)
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -330,8 +365,9 @@ if __name__ == "__main__":
         endlaunch = float(sys.argv[3])
         N = int(sys.argv[4])
     except (ValueError, IndexError) as e:
-        print(f"Error: {e}. Please provide valid numeric arguments.")
-        sys.exit(1)  # Exit to indicate an error
+        if (option == None):
+            print(f"Error: {e}. Please provide valid numeric arguments.")
+            sys.exit(1)  # Exit to indicate an error
 
     if option == 1:
         plot_while_processing()
@@ -345,5 +381,7 @@ if __name__ == "__main__":
         obtain_poster_launchangle_pic()
     elif option == 7:
         obtain_zoomed_in_launchangle_pic()
+    elif option == 8:
+        obtain_angle_plot()
     else:
         plot_thrust_data_from_simulation()

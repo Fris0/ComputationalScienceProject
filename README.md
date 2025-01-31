@@ -35,6 +35,8 @@ This is the repository for the project Computational Science course. Built by te
         obtain_poster_launchangle_pic()
   - 7:
         obtain_zoomed_in_launchangle_pic()
+  - 8:
+        obtain_angle_plot()
   - else:
         plot_thrust_data_from_simulation()
 
