@@ -41,9 +41,9 @@ This is the repository for the project Computational Science course. Built by te
         plot_thrust_data_from_simulation()
 
 # Reproduction tips
-- ModelData isn't included in the folder, because the file sizes are too big,
-  thus to reproduce the obtaining code of the best angle we recommend running
-  the following set of commands all in seperate terminals:
+- ModelData isn't included in the folder to reproduce the obtaining
+  code of the best angle we recommend running the following set of commands
+  all in seperate terminals:
   - ```python main.py 4 0 15 16```
   - ```python main.py 4 15 30 16```
   - ```python main.py 4 30 45 16```
