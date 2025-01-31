@@ -97,7 +97,7 @@ def obtain_thrust_data_from_simulation() -> None:
 
     for idx, thrust in enumerate(thrust_samples):
         # Resetting / Starting simulation.
-        solver = Solver(tend=1000, tolerance=1e1)
+        solver = Solver(tend=1000, tolerance=1e4)
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(T_a=thrust * 32.174, la=45))
         # Extracting data.
@@ -334,7 +334,7 @@ def obtain_angle_plot() -> None:
         angle_dist_list.append([float(str_angle), curdist])
 
     angle_dist_list.sort(key=lambda x: x[0])
-    angle_dist_list = np.transpose(angle_dist_list)	
+    angle_dist_list = np.transpose(angle_dist_list)
 
     plt.scatter(angle_dist_list[0], angle_dist_list[1])
     plt.xlim([0, 90])

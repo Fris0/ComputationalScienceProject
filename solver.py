@@ -19,6 +19,9 @@ from physics import Rocket
 # General numerical handling of data
 import numpy as np
 
+# Create rockets clones
+import copy
+
 
 def changedmax(arr1: list[list[float]],
                arr2: list[list[float]],
@@ -344,11 +347,13 @@ class Solver():
         self.Nike = True
 
         # Obtain results and determine the actual error.
+        newrocket = copy.deepcopy(rocket)
         result = self.solve_general(args,
-                                    Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics,
+                                    newrocket.Nike_Apache_physics,
                                     T, N//2)
+        newrocket = copy.deepcopy(rocket)
         result_2 = self.solve_general(args,
-                                      Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics,
+                                      newrocket.Nike_Apache_physics,
                                       T, N)
         absolute_errors = np.abs(np.repeat(result, repeats=2, axis=0) - result_2)
         mymax = changedmax(absolute_errors, np.repeat(result, repeats=2, axis=0), result_2)
@@ -358,8 +363,9 @@ class Solver():
                 interpolation points to {N} and current maximum error is {mymax}")
             N *= 2
             result = result_2
+            newrocket = copy.deepcopy(rocket)
             result_2 = self.solve_general(args,
-                                          Rocket(la=np.rad2deg(rocket.la)).Nike_Apache_physics,
+                                          newrocket.Nike_Apache_physics,
                                           T, N)
             absolute_errors = np.abs(np.repeat(result, repeats=2, axis=0) - result_2)
             mymax = changedmax(absolute_errors, np.repeat(result, repeats=2, axis=0), result_2)
