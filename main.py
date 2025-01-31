@@ -97,7 +97,7 @@ def obtain_thrust_data_from_simulation() -> None:
 
     for idx, thrust in enumerate(thrust_samples):
         # Resetting / Starting simulation.
-        solver = Solver(tend=1000)
+        solver = Solver(tend=1000, tolerance=1e1)
         # Simulating with new angle.
         result = solver.solve_rocketNike(Rocket(T_a=thrust * 32.174, la=45))
         # Extracting data.
@@ -228,8 +228,6 @@ def obtain_poster_launchangle_pic() -> None:
         data = pd.DataFrame(data=d)
         data.to_csv("ModelData/AngleData/LAis" +
                     str(launchangle).replace('.', '_') + ".csv")
-    plt.xlim([4275000, 4303500])
-    plt.ylim([0, 10000])
     plt.xlabel("Distance (ft)")
     plt.ylabel("Altitude (ft)")
     plt.legend()
@@ -334,8 +332,10 @@ def obtain_angle_plot() -> None:
         distance = data['distance']
         curdist = np.max(distance)
         angle_dist_list.append([float(str_angle), curdist])
+
     angle_dist_list.sort(key=lambda x: x[0])
     angle_dist_list = np.transpose(angle_dist_list)	
+
     plt.scatter(angle_dist_list[0], angle_dist_list[1])
     plt.xlim([0, 90])
     plt.ylim([0,5e6])
