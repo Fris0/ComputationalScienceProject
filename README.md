@@ -39,7 +39,7 @@ This is the repository for the project Computational Science course. Built by te
         obtain_angle_plot()
   - else:
         plot_thrust_data_from_simulation()
-- To get the verification data plot run ```python3 verification.py``` 
+- To get the verification data plot run ```python3 verifier.py``` 
 
 # Reproduction tips
 - ModelData isn't included in the folder to reproduce the obtaining
